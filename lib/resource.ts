@@ -1,8 +1,8 @@
-import {RequestBuilder} from "./requestBuilder.ts";
+import {RequestBuilder} from "./requestBuilder";
 
-import {Field, FilledObject, NeedReAuth, PullMethods, PushMethods} from "./resourceTypes.ts";
-import {SchemaStyler} from "./schemaStyler.ts";
-import {TypeChecker} from "./typeChecker.ts";
+import {Field, FilledObject, NeedReAuth, PullMethods, PushMethods} from "./resourceTypes";
+import {SchemaStyler} from "./schemaStyler";
+import {TypeChecker} from "./typeChecker";
 import {AxiosResponse} from "axios";
 import {Reactive, reactive} from "vue";
 
@@ -11,7 +11,6 @@ const defaultTypeChecker = new TypeChecker<'create' | 'update'>({
     'create': null,
     'update': null
 });
-const defaultSchemaStyler = new SchemaStyler();
 
 /*
 Resource is a class for loading objects from Rest API.
@@ -36,7 +35,7 @@ export class Resource<
     public constructor(
         requestBuilder: RequestBuilder<IDType>,
         typeChecker = defaultTypeChecker,
-        schemaStyler: SchemaStyler<any, any, any> = defaultSchemaStyler
+        schemaStyler: SchemaStyler<ContentType, any, any> = new SchemaStyler()
     ) {
         this.objectByKey = reactive(new Map());
         this.sortFields = [];

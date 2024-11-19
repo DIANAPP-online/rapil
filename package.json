@@ -1,0 +1,25 @@
+{
+  "name": "rapil",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Resource API Library - Work with restfull APIs",
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^22.0.0",
+    "axios": "^1.7.2",
+    "prettier": "^3.3.3",
+    "vue": "^3.4.31"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.6.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.5",
+    "vue-tsc": "^2.0.24"
+  }
+}

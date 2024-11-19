@@ -1,5 +1,5 @@
-import {Authenticator} from "./authenticator.ts"
-import {BaseSchemaType, Field} from "./resourceTypes.ts";
+import {Authenticator} from "./authenticator"
+import {BaseSchemaType, Field} from "./resourceTypes";
 import axios, {AxiosInstance} from "axios";
 
 export class RequestBuilder<
@@ -9,9 +9,9 @@ export class RequestBuilder<
     protected api: AxiosInstance
     public authenticator: Authenticator;
 
-    public constructor(endpoint: string, authenticator: new (api: AxiosInstance) => Authenticator) {
+    public constructor(baseURL: string, endpoint: string, authenticator: new (api: AxiosInstance) => Authenticator) {
         this.api = axios.create({
-            baseURL: import.meta.env.VITE_APP_API_URL,
+            baseURL: baseURL,
             validateStatus: () => true
         });
         this.endpoint = endpoint;

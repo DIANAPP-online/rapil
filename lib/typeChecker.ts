@@ -1,4 +1,4 @@
-import {BaseSchemaType, FilledObject} from "./resourceTypes.ts";
+import {BaseSchemaType, FilledObject} from "./resourceTypes";
 
 
 export class TypeChecker<Methods extends string> {
