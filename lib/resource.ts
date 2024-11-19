@@ -323,7 +323,6 @@ export class Resource<
                 ...obj,
             } as ContentType;
         }
-        // @ts-ignore
         this.objectByKey.set(id, newObject);
         this.cleanStorage();
         return newObject;

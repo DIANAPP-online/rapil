@@ -1,7 +1,7 @@
 import {AxiosInstance} from "axios";
 
 export class Authenticator {
-    private api: AxiosInstance;
+    protected api: AxiosInstance;
     public refreshToken: string;
 
     constructor(api: AxiosInstance) {

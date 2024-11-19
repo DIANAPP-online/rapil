@@ -12,8 +12,14 @@ export class TypeChecker<Methods extends string> {
         schema: FilledObject,
         method: Methods,
         _in: string = "",
+        _recursiveSchema: BaseSchemaType | null = null
     ): void {
-        const schemaType = this.schemas[method];
+        let schemaType: BaseSchemaType;
+        if (_recursiveSchema === null) {
+            schemaType = this.schemas[method];
+        } else {
+            schemaType = _recursiveSchema
+        }
         let _in_str = _in + "|";
         if (schemaType === null) {
             throw new Error(`schemaType for ${method} method is not defined`);
@@ -41,11 +47,10 @@ export class TypeChecker<Methods extends string> {
     private typeCheckForTypeError(
         schemaType: BaseSchemaType,
         schema: FilledObject,
-        method: string,
+        method: Methods,
         _in_str: string,
     ): void {
         for (const [key, value] of Object.entries(schema)) {
-            // @ts-ignore
             if (
                 Array.isArray(schemaType[key]) &&
                 !schemaType[key].includes(typeof value)
@@ -63,9 +68,8 @@ export class TypeChecker<Methods extends string> {
                 schemaType[key] !== null &&
                 !Array.isArray(schemaType[key])
             ) {
-                // @ts-ignore
                 // Recursive check for {some_field: {field: 'someType'}}
-                this.typeCheck(schemaType[key], value, method, _in_str + key);
+                this.typeCheck(value, method, _in_str + key, schemaType[key]);
             }
             if (
                 typeof schemaType[key] === "string" &&
