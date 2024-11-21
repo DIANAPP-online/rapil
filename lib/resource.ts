@@ -4,7 +4,7 @@ import {Field, FilledObject, NeedReAuth, PullMethods, PushMethods} from "./resou
 import {SchemaStyler} from "./schemaStyler";
 import {TypeChecker} from "./typeChecker";
 import {AxiosResponse} from "axios";
-import {Reactive, reactive} from "vue";
+import {computed, Reactive, reactive} from "vue";
 
 
 const defaultTypeChecker = new TypeChecker<'create' | 'update'>({
@@ -27,6 +27,7 @@ export class Resource<
     public maxStorageSize: number | null;
     public isFullObject: ((obj: ContentType | undefined) => boolean) | null;
     public IDFieldName: string;
+    public computedFields: {[key: string]: ((obj: FilledObject) => ContentType)}
 
     public requestBuilder: RequestBuilder<IDType>;
     private typeChecker: TypeChecker<'create' | 'update' | string>;
@@ -325,6 +326,10 @@ export class Resource<
                 ...obj,
             } as ContentType;
         }
+        for (const field in Object.keys(this.computedFields)) {
+            newObject[field] = computed(() => this.computedFields[field](newObject))
+        }
+
         this.objectByKey.set(id, newObject);
         this.cleanStorage();
         return newObject;
