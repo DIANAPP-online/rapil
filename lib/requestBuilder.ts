@@ -9,10 +9,10 @@ export class RequestBuilder<
     protected api: AxiosInstance
     public authenticator: Authenticator;
 
-    public constructor(api: AxiosInstance, endpoint: string, authenticator: new (api: AxiosInstance) => Authenticator) {
+    public constructor(api: AxiosInstance, endpoint: string, authenticator: Authenticator) {
         this.api = api
         this.endpoint = endpoint;
-        this.authenticator = new authenticator(this.api)
+        this.authenticator = authenticator
     }
 
     public getLoadNextPageRequest(page: number, count: number) {
