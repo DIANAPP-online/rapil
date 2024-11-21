@@ -27,7 +27,7 @@ export class Resource<
     public maxStorageSize: number | null;
     public isFullObject: ((obj: ContentType | undefined) => boolean) | null;
     public IDFieldName: string;
-    public computedFields: {[key: string]: ((obj: FilledObject) => ContentType)}
+    public computedFields: {[key: string]: ((obj: FilledObject) => any)}
 
     public requestBuilder: RequestBuilder<IDType>;
     private typeChecker: TypeChecker<'create' | 'update' | string>;
