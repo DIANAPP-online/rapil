@@ -64,7 +64,7 @@ export class Resource<
             }
             return this.addComputedToObject(defaultValue)
         }
-        const object = this.objectByKey.get(id);
+        const object = this.objectByKey.get(id) as ContentTypeWithComputed | undefined;
 
         if (object === undefined) {
             if (defaultValue === undefined) {
@@ -73,7 +73,7 @@ export class Resource<
             return this.addComputedToObject(defaultValue);
         }
 
-        return object as ContentTypeWithComputed;
+        return object;
     }
 
     public getObjects(): ContentTypeWithComputed[] {
@@ -336,7 +336,7 @@ export class Resource<
         id: IDType,
         obj: ContentType,
         existsValuePriority: boolean = false,
-    ): ContentType {
+    ): ContentTypeWithComputed {
         let newObject: any;
         if (existsValuePriority) {
             newObject = {
@@ -349,10 +349,10 @@ export class Resource<
                 ...obj,
             };
         }
-
-        this.objectByKey.set(id, newObject);
+        const newObjectWithComputed = this.addComputedToObject(newObject)
+        this.objectByKey.set(id, newObjectWithComputed as any);
         this.cleanStorage();
-        return newObject as ContentType;
+        return newObjectWithComputed;
     }
 
     private cleanStorage(): void {
