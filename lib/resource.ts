@@ -340,10 +340,7 @@ export class Resource<
                 ...obj,
             };
         }
-        console.log(`resource computedFields`, this.computedFields)
         for (const field of Object.keys(this.computedFields)) {
-            console.log(`resource set field ${field}`)
-            console.log(`resource set computedFields[field] ${this.computedFields[field]}`)
             newObject[field] = computed(() => this.computedFields[field](newObject))
         }
 
