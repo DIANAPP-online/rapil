@@ -328,6 +328,8 @@ export class Resource<
             } as ContentType;
         }
         for (const field in Object.keys(this.computedFields)) {
+            console.log(`resource set field ${field}`)
+            console.log(`resource set computedFields[field] ${this.computedFields[field]}`)
             newObject[field] = computed(() => this.computedFields[field](newObject))
         }
 
