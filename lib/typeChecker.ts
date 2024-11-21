@@ -69,6 +69,7 @@ export class TypeChecker<Methods extends string> {
                 !Array.isArray(schemaType[key])
             ) {
                 // Recursive check for {some_field: {field: 'someType'}}
+                // @ts-ignore
                 this.typeCheck(value, method, _in_str + key, schemaType[key]);
             }
             if (
