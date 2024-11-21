@@ -18,18 +18,19 @@ Resource is a class for loading objects from Rest API.
 export class Resource<
     IDType extends Field,
     ContentType extends FilledObject,
+    ContentTypeWithComputed extends ContentType,
     CreateContentType extends FilledObject,
     UpdateContentType extends FilledObject,
 > {
-    public readonly objectByKey: Reactive<Map<IDType, ContentType>>;
+    public readonly objectByKey: Reactive<Map<IDType, ContentTypeWithComputed | undefined>>;
     public page: number;
     public pageCount: number;
     public sortFields: Field[];
     public reverseSort: boolean;
     public maxStorageSize: number | null;
-    public isFullObject: ((obj: ContentType | undefined) => boolean) | null;
+    public isFullObject: ((obj: ContentTypeWithComputed | undefined) => boolean) | null;
     public IDFieldName: string;
-    public computedFields: { [key: string]: ((obj: FilledObject) => any) }
+    public computedFields: { [key: string]: ((obj: ContentType) => any) }
 
     public requestBuilder: RequestBuilder<IDType>;
     private typeChecker: TypeChecker<'create' | 'update' | string>;
@@ -56,12 +57,12 @@ export class Resource<
 
     // ============================= Getters =============================
 
-    public get(id: IDType | undefined, defaultValue: ContentType | undefined = undefined): ContentType {
+    public get(id: IDType | undefined, defaultValue: ContentType | undefined = undefined): ContentTypeWithComputed {
         if (id === undefined) {
             if (defaultValue === undefined) {
                 throw new Error(`Resource.get - id and default value are undefined`);
             }
-            return defaultValue
+            return this.addComputedToObject(defaultValue)
         }
         const object = this.objectByKey.get(id);
 
@@ -69,16 +70,16 @@ export class Resource<
             if (defaultValue === undefined) {
                 throw new Error(`Object is undefined`);
             }
-            return defaultValue;
+            return this.addComputedToObject(defaultValue);
         }
 
-        return object as ContentType;
+        return object as ContentTypeWithComputed;
     }
 
-    public getObjects() {
-        const objects: ContentType[] = [];
+    public getObjects(): ContentTypeWithComputed[] {
+        const objects: ContentTypeWithComputed[] = [];
         for (const value of this.objectByKey.values()) {
-            objects.push(value as ContentType);
+            objects.push(value as ContentTypeWithComputed);
         }
         if (this.sortFields.length) {
             objects.sort(
@@ -90,8 +91,8 @@ export class Resource<
 
     public getByFilter(
         filterQuery: FilterType,
-        filterFn: ((obj: ContentType) => boolean) | null = null,
-    ): ContentType[] {
+        filterFn: ((obj: ContentTypeWithComputed) => boolean) | null = null,
+    ): ContentTypeWithComputed[] {
         let objects = this.getObjectsByFilter(filterQuery, this.getObjects());
         if (filterFn !== null) {
             objects = this.getObjectsByFilterFn(filterFn, objects);
@@ -116,7 +117,7 @@ export class Resource<
             }
             if (
                 this.get(id) === undefined ||
-                !this.isFullObject(this.get(id) as ContentType | undefined)
+                !this.isFullObject(this.get(id) as ContentTypeWithComputed)
             ) {
                 await this.loadOne(id, beforeLoadingValue);
             }
@@ -284,11 +285,11 @@ export class Resource<
         this.updateObject(obj[this.IDFieldName], obj);
     }
 
-    private getObjectsByFilter(
+    private getObjectsByFilter<T extends FilledObject>(
         filter: FilterType,
-        objects: ContentType[],
-    ): ContentType[] {
-        const filtered_objects: ContentType[] = [];
+        objects: T[],
+    ): T[] {
+        const filtered_objects: T[] = [];
         for (const object of objects) {
             let isObjectCorrect = true;
             for (const [key, value] of Object.entries(filter)) {
@@ -302,10 +303,10 @@ export class Resource<
     }
 
     private getObjectsByFilterFn(
-        filterFn: (obj: ContentType) => boolean,
-        objects: ContentType[],
-    ): ContentType[] {
-        const filtered_objects: ContentType[] = [];
+        filterFn: (obj: ContentTypeWithComputed) => boolean,
+        objects: ContentTypeWithComputed[],
+    ): ContentTypeWithComputed[] {
+        const filtered_objects: ContentTypeWithComputed[] = [];
         for (const object of objects) {
             if (filterFn(object)) {
                 filtered_objects.push(object);
@@ -321,6 +322,14 @@ export class Resource<
             newObjects.push(newObject);
         }
         return newObjects;
+    }
+
+    private addComputedToObject(obj: ContentType): ContentTypeWithComputed {
+        const newObj = {...obj} as any
+        for (const field of Object.keys(this.computedFields)) {
+            newObj[field] = computed(() => this.computedFields[field](newObj))
+        }
+        return newObj as ContentTypeWithComputed
     }
 
     private updateObject(
@@ -339,9 +348,6 @@ export class Resource<
                 ...(this.objectByKey.get(id) as object),
                 ...obj,
             };
-        }
-        for (const field of Object.keys(this.computedFields)) {
-            newObject[field] = computed(() => this.computedFields[field](newObject))
         }
 
         this.objectByKey.set(id, newObject);
