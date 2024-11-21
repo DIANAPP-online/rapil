@@ -25,6 +25,7 @@ export class Resource<
     public readonly objectByKey: Reactive<Map<IDType, ContentTypeWithComputed | undefined>>;
     public page: number;
     public pageCount: number;
+    public pagesEnded: boolean;
     public sortFields: Field[];
     public reverseSort: boolean;
     public maxStorageSize: number | null;
@@ -45,6 +46,7 @@ export class Resource<
         this.sortFields = [];
         this.page = 0;
         this.pageCount = 20;
+
         this.reverseSort = false;
         this.maxStorageSize = null;
         this.isFullObject = null;
@@ -53,6 +55,7 @@ export class Resource<
         this.typeChecker = typeChecker;
         this.schemaStyler = schemaStyler
         this.computedFields = {}
+        this.pagesEnded = false;
     }
 
     // ============================= Getters =============================
@@ -142,7 +145,11 @@ export class Resource<
     }
 
     public async loadNextPage(_reload_on_error: boolean = true): Promise<void> {
+        if (this.pagesEnded){
+            return;
+        }
         const response = await this.requestBuilder.getLoadNextPageRequest(this.page, this.pageCount);
+
         const objects = await this.responseCheck<ContentType[]>(
             response,
             "getNextPage",
@@ -156,6 +163,8 @@ export class Resource<
         }
         if (objects.length === this.pageCount) {
             this.page += 1;
+        } else {
+            this.pagesEnded = true;
         }
         for (const obj of objects) {
             const resourceStyleObject = this.schemaStyler.getResourceStyledSchema(obj, 'load');
