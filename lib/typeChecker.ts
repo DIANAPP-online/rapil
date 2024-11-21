@@ -53,6 +53,7 @@ export class TypeChecker<Methods extends string> {
         for (const [key, value] of Object.entries(schema)) {
             if (
                 Array.isArray(schemaType[key]) &&
+                // @ts-ignore
                 !schemaType[key].includes(typeof value)
             ) {
                 // Type is not in ['someType1', 'someType2']
