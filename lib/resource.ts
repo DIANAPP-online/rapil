@@ -49,6 +49,7 @@ export class Resource<
         this.requestBuilder = requestBuilder;
         this.typeChecker = typeChecker;
         this.schemaStyler = schemaStyler
+        this.computedFields = {}
     }
 
     // ============================= Getters =============================
