@@ -1,10 +1,10 @@
-import {RequestBuilder} from "./requestBuilder";
-
-import {Field, FilledObject, NeedReAuth, PullMethods, PushMethods} from "./resourceTypes";
-import {SchemaStyler} from "./schemaStyler";
-import {TypeChecker} from "./typeChecker";
 import {AxiosResponse} from "axios";
 import {computed, Reactive, reactive} from "vue";
+import {RequestBuilder} from "./requestBuilder";
+
+import {Field, FilledObject, FilterType, NeedReAuth, PullMethods, PushMethods} from "./resourceTypes";
+import {SchemaStyler} from "./schemaStyler";
+import {TypeChecker} from "./typeChecker";
 
 
 const defaultTypeChecker = new TypeChecker<'create' | 'update'>({
@@ -18,6 +18,8 @@ Resource is a class for loading objects from Rest API.
 export class Resource<
     IDType extends Field,
     ContentType extends FilledObject,
+    CreateContentType extends FilledObject,
+    UpdateContentType extends FilledObject,
 > {
     public readonly objectByKey: Reactive<Map<IDType, ContentType>>;
     public page: number;
@@ -27,16 +29,16 @@ export class Resource<
     public maxStorageSize: number | null;
     public isFullObject: ((obj: ContentType | undefined) => boolean) | null;
     public IDFieldName: string;
-    public computedFields: {[key: string]: ((obj: FilledObject) => any)}
+    public computedFields: { [key: string]: ((obj: FilledObject) => any) }
 
     public requestBuilder: RequestBuilder<IDType>;
     private typeChecker: TypeChecker<'create' | 'update' | string>;
-    private schemaStyler: SchemaStyler<ContentType, PushMethods, PullMethods>;
+    private schemaStyler: SchemaStyler<ContentType | CreateContentType | UpdateContentType, ContentType, PushMethods, PullMethods>;
 
     public constructor(
         requestBuilder: RequestBuilder<IDType>,
         typeChecker = defaultTypeChecker,
-        schemaStyler: SchemaStyler<ContentType, any, any> = new SchemaStyler()
+        schemaStyler: SchemaStyler<ContentType | CreateContentType | UpdateContentType, ContentType, any, any> = new SchemaStyler()
     ) {
         this.objectByKey = reactive(new Map());
         this.sortFields = [];
@@ -87,7 +89,7 @@ export class Resource<
     }
 
     public getByFilter(
-        filterQuery: object,
+        filterQuery: FilterType,
         filterFn: ((obj: ContentType) => boolean) | null = null,
     ): ContentType[] {
         let objects = this.getObjectsByFilter(filterQuery, this.getObjects());
@@ -102,10 +104,12 @@ export class Resource<
     public async load(
         id: IDType,
         ifNotExists: boolean | null = null,
-        beforeLoadingValue: object = {},
+        beforeLoadingValue: ContentType | undefined = undefined,
         existsValuePriority: boolean = true,
     ): Promise<void> {
-        this.updateObject(id, beforeLoadingValue, existsValuePriority);
+        if (beforeLoadingValue !== undefined) {
+            this.updateObject(id, beforeLoadingValue, existsValuePriority);
+        }
         if (ifNotExists) {
             if (this.isFullObject === null) {
                 throw new Error("Call load if not exists without checkIsFullObject");
@@ -124,9 +128,9 @@ export class Resource<
     public async loadList(
         ids: IDType[],
         ifNotExists: boolean | null = null,
-        beforeLoadingValue: object = {},
+        beforeLoadingValue: ContentType | undefined = undefined,
         existsValuePriority: boolean = true,
-    ) {
+    ): Promise<void> {
         let promises = [];
         for (const id of ids) {
             promises.push(
@@ -149,7 +153,7 @@ export class Resource<
         if (objects === undefined) {
             throw new Error("getNextPage objects are undefined");
         }
-        if (objects.length === this.pageCount){
+        if (objects.length === this.pageCount) {
             this.page += 1;
         }
         for (const obj of objects) {
@@ -158,7 +162,7 @@ export class Resource<
         }
     }
 
-    public async loadByFilter(filter: object): Promise<void> {
+    public async loadByFilter(filter: FilterType): Promise<void> {
         let objects = await this._loadByFilter(filter);
         this.updateObjects(objects);
     }
@@ -166,7 +170,7 @@ export class Resource<
     // ============================= Data manipulating =============================
 
     public async create(
-        createSchema: object,
+        createSchema: CreateContentType,
         data: FormData | null = null,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
@@ -175,7 +179,7 @@ export class Resource<
         }
         this.typeChecker.typeCheck(createSchema, "create");
         let response;
-        response = await this.requestBuilder.getCreateRequest(this.schemaStyler.getAPIStyledSchema(createSchema as ContentType, 'create'))
+        response = await this.requestBuilder.getCreateRequest(this.schemaStyler.getAPIStyledSchema(createSchema, 'create'))
         const obj = await this.responseCheck<ContentType>(response, "create");
         if (_reload_on_error && obj === undefined) {
             return await this.create(createSchema, data, false);
@@ -183,13 +187,13 @@ export class Resource<
         if (obj === undefined) {
             throw new Error("create object is undefined");
         }
-        this.updateObject(obj[this.IDFieldName], obj);
+        this.updateObject(obj[this.IDFieldName], this.schemaStyler.getResourceStyledSchema(obj, 'create'));
         return obj;
     }
 
     public async update(
         id: IDType,
-        updateSchema: ContentType,
+        updateSchema: UpdateContentType,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
         for (const field of Object.keys(this.computedFields)) {
@@ -204,7 +208,7 @@ export class Resource<
         if (obj === undefined) {
             throw new Error("update object is undefined");
         }
-        this.updateObject(obj[this.IDFieldName], this.schemaStyler.getAPIStyledSchema(obj, "update"));
+        this.updateObject(obj[this.IDFieldName], this.schemaStyler.getResourceStyledSchema(obj, "update"));
         return obj;
     }
 
@@ -237,7 +241,7 @@ export class Resource<
     }
 
     private async _loadByFilter(
-        filter: object,
+        filter: FilterType,
         _reload_on_error: boolean = true,
     ): Promise<ContentType[]> {
         const response = await this.requestBuilder.getLoadByFilterRequest(filter);
@@ -256,29 +260,32 @@ export class Resource<
 
     private async loadOne(
         id: IDType,
-        beforeLoadingValue: object = {},
+        beforeLoadingValue: ContentType | undefined = undefined,
     ): Promise<void> {
-        this.updateObject(id, beforeLoadingValue, true);
+        if (beforeLoadingValue !== undefined) {
+            this.updateObject(id, beforeLoadingValue, true);
+        }
         await this.loadOneObject(id);
     }
 
     private async loadOneObject(
         id: IDType,
         _reload_on_error: boolean = true,
-    ): Promise<ContentType> {
+    ): Promise<void> {
         const response = await this.requestBuilder.getLoadOneRequest(id);
         const obj = await this.responseCheck<ContentType>(response, "get");
         if (_reload_on_error && obj === undefined) {
-            return await this.loadOneObject(id, false);
+            await this.loadOneObject(id, false);
+            return;
         }
         if (obj === undefined) {
             throw new Error("loadOneObject object is undefined");
         }
-        return this.updateObject(obj[this.IDFieldName], obj);
+        this.updateObject(obj[this.IDFieldName], obj);
     }
 
     private getObjectsByFilter(
-        filter: object,
+        filter: FilterType,
         objects: ContentType[],
     ): ContentType[] {
         const filtered_objects: ContentType[] = [];
@@ -318,20 +325,20 @@ export class Resource<
 
     private updateObject(
         id: IDType,
-        obj: object,
+        obj: ContentType,
         existsValuePriority: boolean = false,
-    ) {
-        let newObject;
+    ): ContentType {
+        let newObject: any;
         if (existsValuePriority) {
             newObject = {
                 ...obj,
                 ...(this.objectByKey.get(id) as object),
-            } as ContentType;
+            };
         } else {
             newObject = {
                 ...(this.objectByKey.get(id) as object),
                 ...obj,
-            } as ContentType;
+            };
         }
         console.log(`resource computedFields`, this.computedFields)
         for (const field of Object.keys(this.computedFields)) {
@@ -342,10 +349,10 @@ export class Resource<
 
         this.objectByKey.set(id, newObject);
         this.cleanStorage();
-        return newObject;
+        return newObject as ContentType;
     }
 
-    private cleanStorage() {
+    private cleanStorage(): void {
         const idsIter = this.objectByKey.keys();
         while (
             this.maxStorageSize !== null &&
@@ -356,7 +363,7 @@ export class Resource<
         }
     }
 
-    private deleteObjectFromResourceStorage(id: IDType) {
+    private deleteObjectFromResourceStorage(id: IDType): void {
         this.objectByKey.delete(id);
     }
 

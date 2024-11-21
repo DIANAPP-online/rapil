@@ -10,7 +10,11 @@ export interface FilledObject {
     [key: Field]: any;
 }
 
-export type PullMethods = "load"
+export type PullMethods = "load" | "create" | "update"
 export type PushMethods = "create" | "update"
 
 export type NeedReAuth = undefined;
+
+export type FilterType = {
+    [field: string]: string | number | boolean | string[] | number[] | boolean[]
+}

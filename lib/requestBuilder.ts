@@ -1,6 +1,6 @@
 import {Authenticator} from "./authenticator"
-import {BaseSchemaType, Field} from "./resourceTypes";
-import axios, {AxiosInstance} from "axios";
+import {BaseSchemaType, Field, FilterType} from "./resourceTypes";
+import {AxiosInstance} from "axios";
 
 export class RequestBuilder<
     IDType extends Field
@@ -51,7 +51,7 @@ export class RequestBuilder<
         return this.api.delete(`${this.endpoint}/${id}`);
     }
 
-    public getLoadByFilterRequest(filter: object) {
+    public getLoadByFilterRequest(filter: FilterType) {
         return this.api.get(`${this.endpoint}`, {params: filter})
     }
 }
