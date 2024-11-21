@@ -170,6 +170,9 @@ export class Resource<
         data: FormData | null = null,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
+        for (const field of Object.keys(this.computedFields)) {
+            delete createSchema[field]
+        }
         this.typeChecker.typeCheck(createSchema, "create");
         let response;
         response = await this.requestBuilder.getCreateRequest(this.schemaStyler.getAPIStyledSchema(createSchema as ContentType, 'create'))
@@ -189,6 +192,9 @@ export class Resource<
         updateSchema: ContentType,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
+        for (const field of Object.keys(this.computedFields)) {
+            delete updateSchema[field]
+        }
         this.typeChecker.typeCheck(updateSchema, "update");
         const response = await this.requestBuilder.getUpdateRequest(id, this.schemaStyler.getAPIStyledSchema(updateSchema, 'update'));
         const obj = await this.responseCheck<ContentType>(response, "update");
