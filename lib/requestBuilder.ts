@@ -9,11 +9,8 @@ export class RequestBuilder<
     protected api: AxiosInstance
     public authenticator: Authenticator;
 
-    public constructor(baseURL: string, endpoint: string, authenticator: new (api: AxiosInstance) => Authenticator) {
-        this.api = axios.create({
-            baseURL: baseURL,
-            validateStatus: () => true
-        });
+    public constructor(api: AxiosInstance, endpoint: string, authenticator: new (api: AxiosInstance) => Authenticator) {
+        this.api = api
         this.endpoint = endpoint;
         this.authenticator = new authenticator(this.api)
     }
