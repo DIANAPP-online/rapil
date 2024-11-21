@@ -147,7 +147,9 @@ export class Resource<
         if (objects === undefined) {
             throw new Error("getNextPage objects are undefined");
         }
-        this.page += 1;
+        if (objects.length === this.pageCount){
+            this.page += 1;
+        }
         for (const obj of objects) {
             const resourceStyleObject = this.schemaStyler.getResourceStyledSchema(obj, 'load');
             this.updateObject(obj[this.IDFieldName], resourceStyleObject);
