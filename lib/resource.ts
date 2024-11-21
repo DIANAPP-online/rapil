@@ -180,7 +180,7 @@ export class Resource<
         }
         this.typeChecker.typeCheck(createSchema, "create");
         let response;
-        response = await this.requestBuilder.getCreateRequest(this.schemaStyler.getAPIStyledSchema(createSchema, 'create'))
+        response = await this.requestBuilder.getCreateRequest(this.schemaStyler.getAPIStyledSchema(createSchema, 'create'), data)
         const obj = await this.responseCheck<ContentType>(response, "create");
         if (_reload_on_error && obj === undefined) {
             return await this.create(createSchema, data, false);
