@@ -1,4 +1,4 @@
-import {FilledObject, FilterType} from "./resourceTypes";
+import {FilledObject} from "./resourceTypes";
 
 export class SchemaStyler<ToAPIContentType, ToResourceContentType, PushMethods, PullMethods> {
     public getAPIStyledSchema (obj: ToAPIContentType, _: PushMethods): FilledObject {

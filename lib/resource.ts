@@ -178,8 +178,24 @@ export class Resource<
         }
     }
 
-    public async load_by_filter(filter: FilterType): Promise<void> {
-        let objects = await this._load_by_filter(filter);
+    public async load_by_filter(filter: FilterType, _on_reload_error: boolean = true): Promise<void> {
+        const request_builder = await this.create_request_builder()
+        const response = request_builder.get_load_by_filter_request(filter);
+        let objects
+        try {
+            objects = await this.response_check<ContentType[]>(
+                response,
+                "load_by_filter",
+            );
+        } catch (e: unknown) {
+            if (e instanceof NeedReAuth) {
+                await this.load_by_filter(filter, false)
+                return
+            }
+        }
+        if (objects === undefined) {
+            throw new Error("load_by_filter object is undefined");
+        }
         this.update_objects(objects);
     }
 
@@ -243,14 +259,12 @@ export class Resource<
     public async delete(id: string, _reload_on_error: boolean = true): Promise<void> {
         const request_builder = await this.create_request_builder()
         const response = request_builder.get_delete_request(id);
-        if (_reload_on_error) {
-            
-        }
         try {
             await this.response_check<undefined>(response, "delete");
         } catch (e: unknown) {
             if (e instanceof NeedReAuth) {
                 await this.delete(id, false)
+                return
             }
         }
         this.delete_object_from_resource_storage(id);
@@ -278,29 +292,6 @@ export class Resource<
         return compare_objects;
     }
 
-    private async _load_by_filter(
-        filter: FilterType,
-        _reload_on_error: boolean = true,
-    ): Promise<ContentType[]> {
-        const request_builder = await this.create_request_builder()
-        const response = request_builder.get_load_by_filter_request(filter);
-        let objects
-        try {
-            objects = await this.response_check<ContentType[]>(
-                response,
-                "load_by_filter",
-            );
-        } catch (e: unknown) {
-            if (e instanceof NeedReAuth) {
-                return await this._load_by_filter(filter, false)
-            }
-        }
-        if (objects === undefined) {
-            throw new Error("load_by_filter object is undefined");
-        }
-        return objects;
-    }
-
     private async load_one(
         id: string,
         _reload_on_error: boolean = true,
@@ -313,6 +304,7 @@ export class Resource<
         } catch (e: unknown) {
             if (e instanceof NeedReAuth) {
                 await this.load_one(id, false)
+                return
             }
         }
         if (obj === undefined) {
