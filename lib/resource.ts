@@ -1,11 +1,10 @@
 import {AxiosResponse} from "axios";
-import {computed, Reactive, reactive} from "vue";
+import {Reactive, reactive} from "vue";
 import {RequestBuilder} from "./requestBuilder";
 
-import {Field, FilledObject, FilterType, NeedReAuth} from "./resourceTypes";
+import {Endpoint, Field, FilledObject, FilterType, NeedReAuth} from "./resourceTypes";
 import {TypeChecker} from "./typeChecker";
 import type { Authenticator } from "./authenticator";
-import { Endpoint } from './authenticator';
 
 
 const default_type_checker = new TypeChecker<'create' | 'update'>({
@@ -18,23 +17,22 @@ Resource is a class for loading objects from Rest API.
  */
 export class Resource<
     ContentType extends FilledObject,
-    ContentTypeWithComputed extends ContentType,
     CreateContentType extends FilledObject,
     UpdateContentType extends FilledObject,
 > {
-    public readonly object_by_key: Reactive<Map<string, ContentTypeWithComputed | undefined>>;
+    public readonly object_by_key: Reactive<Map<string, ContentType | undefined>>;
     public page: number;
     public page_count: number;
     public pages_ended: boolean;
     public sort_fields: Field[];
     public reverse_sort: boolean;
     public max_storage_size: number | null;
-    public is_full_object: ((obj: ContentTypeWithComputed | undefined) => boolean) | null;
+    public is_full_object: ((obj: ContentType | undefined) => boolean) | null;
     public id_field_name: string;
     public computed_fields: { [key: string]: ((obj: ContentType) => any) }
 
-    private authenticator: Authenticator
-    private type_checker: TypeChecker<'create' | 'update' | string>;
+    private readonly authenticator: Authenticator
+    private readonly type_checker: TypeChecker<'create' | 'update' | string>;
     private readonly endpoint: Endpoint
 
     public constructor(
@@ -60,29 +58,29 @@ export class Resource<
 
     // ============================= Getters =============================
 
-    public get(id: string | undefined, default_value: ContentType | undefined = undefined): ContentTypeWithComputed {
+    public get(id: string | undefined, default_value: ContentType | undefined = undefined): ContentType {
         if (id === undefined) {
             if (default_value === undefined) {
                 throw new Error(`Resource.get - id and default value are undefined`);
             }
-            return this.add_computed_to_object(default_value)
+            return default_value
         }
-        const object = this.object_by_key.get(id) as ContentTypeWithComputed | undefined;
+        const object = this.object_by_key.get(id) as ContentType | undefined;
 
         if (object === undefined) {
             if (default_value === undefined) {
                 throw new Error(`Object is undefined`);
             }
-            return this.add_computed_to_object(default_value);
+            return default_value
         }
 
         return object;
     }
 
-    public get_objects(): ContentTypeWithComputed[] {
-        const objects: ContentTypeWithComputed[] = [];
+    public get_objects(): ContentType[] {
+        const objects: ContentType[] = [];
         for (const value of this.object_by_key.values()) {
-            objects.push(value as ContentTypeWithComputed);
+            objects.push(value as ContentType);
         }
         if (this.sort_fields.length) {
             objects.sort(
@@ -94,8 +92,8 @@ export class Resource<
 
     public get_by_filter(
         filterQuery: FilterType,
-        filter_fn: ((obj: ContentTypeWithComputed) => boolean) | null = null,
-    ): ContentTypeWithComputed[] {
+        filter_fn: ((obj: ContentType) => boolean) | null = null,
+    ): ContentType[] {
         let objects = this.get_objects_by_filter(filterQuery, this.get_objects());
         if (filter_fn !== null) {
             objects = this.get_objects_by_filter_fn(filter_fn, objects);
@@ -120,7 +118,7 @@ export class Resource<
             }
             if (
                 this.get(id) === undefined ||
-                !this.is_full_object(this.get(id) as ContentTypeWithComputed)
+                !this.is_full_object(this.get(id))
             ) {
                 await this.load_one(id);
             }
@@ -331,10 +329,10 @@ export class Resource<
     }
 
     private get_objects_by_filter_fn(
-        filterFn: (obj: ContentTypeWithComputed) => boolean,
-        objects: ContentTypeWithComputed[],
-    ): ContentTypeWithComputed[] {
-        const filtered_objects: ContentTypeWithComputed[] = [];
+        filterFn: (obj: ContentType) => boolean,
+        objects: ContentType[],
+    ): ContentType[] {
+        const filtered_objects: ContentType[] = [];
         for (const object of objects) {
             if (filterFn(object)) {
                 filtered_objects.push(object);
@@ -352,19 +350,11 @@ export class Resource<
         return newObjects;
     }
 
-    private add_computed_to_object(obj: ContentType): ContentTypeWithComputed {
-        const newObj = {...obj} as any
-        for (const field of Object.keys(this.computed_fields)) {
-            newObj[field] = computed(() => this.computed_fields[field](newObj))
-        }
-        return newObj as ContentTypeWithComputed
-    }
-
     private update_object(
         id: string,
         obj: ContentType,
         existsValuePriority: boolean = false,
-    ): ContentTypeWithComputed {
+    ): ContentType {
         let newObject: any;
         if (existsValuePriority) {
             newObject = {
@@ -377,10 +367,9 @@ export class Resource<
                 ...obj,
             };
         }
-        const newObjectWithComputed = this.add_computed_to_object(newObject)
-        this.object_by_key.set(id, newObjectWithComputed as any);
+        this.object_by_key.set(id, newObject);
         this.cleanStorage();
-        return newObjectWithComputed;
+        return newObject;
     }
 
     private cleanStorage(): void {
