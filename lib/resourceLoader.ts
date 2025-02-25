@@ -1,15 +1,15 @@
 import { AxiosResponse } from "axios";
-import { FilledObject, FilterType, NeedReAuth } from "./resourceTypes";
+import { FilledObject, FilterType, NeedReAuth, Endpoint } from "./resourceTypes";
 import { RequestBuilder } from "./requestBuilder";
-import { Authenticator, Endpoint } from "./authenticator";
+import { Authenticator } from "./authenticator";
 
 class ResourceLoader<
     ContentType, 
     CreateContentType extends FilledObject, 
     UpdateContentType  extends FilledObject
 > {
-  private authenticator: Authenticator;
-  private endpoint: Endpoint;
+  private readonly authenticator: Authenticator;
+  private readonly endpoint: Endpoint;
   public page: number;
   public page_count: number;
   public pages_ended: boolean;
@@ -31,6 +31,7 @@ class ResourceLoader<
     } catch (e: unknown) {
       if (e instanceof NeedReAuth) {
         await this.load(id, false);
+        return
       }
     }
     if (obj === undefined) {
@@ -67,8 +68,6 @@ class ResourceLoader<
         await this.load_next_page(false);
         return;
       }
-
-      throw new NeedReAuth();
     }
     if (objects === undefined) {
       throw new Error("get_next_page objects are undefined");
@@ -144,7 +143,6 @@ class ResourceLoader<
     if (obj === undefined) {
       throw new Error("update object is undefined");
     }
-    // this.update_object(obj[this.id_field_name], obj);
     return obj;
   }
 
@@ -154,8 +152,6 @@ class ResourceLoader<
   ): Promise<void> {
     const request_builder = await this.create_request_builder();
     const response = request_builder.get_delete_request(id);
-    if (_reload_on_error) {
-    }
     try {
       await this.response_check<undefined>(response, "delete");
     } catch (e: unknown) {
@@ -163,7 +159,6 @@ class ResourceLoader<
         await this.delete(id, false);
       }
     }
-    // this.delete_object_from_resource_storage(id);
   }
 
   private async response_check<ReturnType>(
