@@ -43,18 +43,6 @@ class SessionTest extends ResourceSession {
     }
 }
 
-// process.on('beforeExit',  async(code) => {
-//     console.log('Process beforeExit event with code: ', code);
-//     await new SessionTest().test()
-//     console.log('here');
-//   });
-
-// process.on('exit', async (code) => {
-// console.log('2: Process exit event with code: ', code);
-// await new Promise(r => setTimeout(r, 5000));
-// console.log('Gere');
-// });
-
 export default async function test() {
     console.log()
     await new SessionTest().test()

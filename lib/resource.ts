@@ -265,7 +265,7 @@ export class Resource<
                 return
             }
         }
-        this.delete_object_from_resource_storage(id);
+        this.delete_object_from_storage(id);
     }
 
     // ============================= Private =============================
@@ -341,49 +341,50 @@ export class Resource<
         return filtered_objects;
     }
 
-    private update_objects(objects: ContentType[]) {
-        const newObjects: ContentType[] = [];
-        for (const obj of objects) {
-            const newObject = this.update_object(obj[this.id_field_name], obj);
-            newObjects.push(newObject);
-        }
-        return newObjects;
-    }
-
     private update_object(
         id: string,
-        obj: ContentType,
-        existsValuePriority: boolean = false,
+        updated_object: ContentType,
+        exists_value_priority: boolean = false,
     ): ContentType {
-        let newObject: any;
-        if (existsValuePriority) {
-            newObject = {
-                ...obj,
-                ...(this.object_by_key.get(id) as object),
+        let new_object: any;
+        const object_from_storage = this.object_by_key.get(id) as ContentType
+        if (exists_value_priority) {
+            new_object = {
+                ...updated_object,
+                ...object_from_storage,
             };
         } else {
-            newObject = {
-                ...(this.object_by_key.get(id) as object),
-                ...obj,
+            new_object = {
+                ...object_from_storage,
+                ...updated_object,
             };
         }
-        this.object_by_key.set(id, newObject);
-        this.cleanStorage();
-        return newObject;
+        this.object_by_key.set(id, new_object);
+        this.clean_storage();
+        return new_object;
     }
 
-    private cleanStorage(): void {
-        const idsIter = this.object_by_key.keys();
+    private update_objects(objects: ContentType[]) {
+        const new_objects: ContentType[] = [];
+        for (const obj of objects) {
+            const newObject = this.update_object(obj[this.id_field_name], obj);
+            new_objects.push(newObject);
+        }
+        return new_objects;
+    }
+
+    private clean_storage(): void {
+        const ids_iter = this.object_by_key.keys();
         while (
             this.max_storage_size !== null &&
             this.object_by_key.size >= this.max_storage_size
             ) {
-            const deleteID = idsIter.next().value;
-            this.delete_object_from_resource_storage(deleteID);
+            const deleteID = ids_iter.next().value;
+            this.delete_object_from_storage(deleteID);
         }
     }
 
-    private delete_object_from_resource_storage(id: string): void {
+    private delete_object_from_storage(id: string): void {
         this.object_by_key.delete(id);
     }
 
