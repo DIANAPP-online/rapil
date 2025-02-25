@@ -13,8 +13,24 @@ export interface FilledObject {
 export type PullMethods = "load" | "create" | "update"
 export type PushMethods = "create" | "update"
 
-export type NeedReAuth = undefined;
 
 export type FilterType = {
     [field: string]: string | number | boolean | string[] | number[] | boolean[]
+}
+
+export class NeedReAuth extends Error {
+    constructor () {
+        super("Need reauth")
+    }
+}
+
+export type Endpoint = `/${string}`
+
+export type GetConfigType = {
+  id?: string
+  params?: {
+    page?: number
+    count?: number
+    filters?: FilterType
+  }
 }

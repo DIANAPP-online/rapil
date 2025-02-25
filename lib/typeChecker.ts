@@ -8,7 +8,7 @@ export class TypeChecker<Methods extends string> {
         this.schemas = schemas
     }
 
-    public typeCheck(
+    public type_check(
         schema: FilledObject,
         method: Methods,
         _in: string = "",
@@ -69,7 +69,7 @@ export class TypeChecker<Methods extends string> {
                 !Array.isArray(schemaType[key])
             ) {
                 // Recursive check for {some_field: {field: 'someType'}}
-                this.typeCheck(value, method, _in_str + key, schemaType[key]);
+                this.type_check(value, method, _in_str + key, schemaType[key]);
             }
             if (
                 typeof schemaType[key] === "string" &&
