@@ -221,10 +221,3 @@ class OAuth2Authentificator implements Authenticator {
     return this.session
   }
 }
-
-const base_url = "https://phys.dianapp.ru/api"
-
-const O2AuthAuthentificatorInstance = new OAuth2Authentificator(
-  "/sessions",
-  base_url
-)
