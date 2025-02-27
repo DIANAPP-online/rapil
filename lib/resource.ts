@@ -5,6 +5,7 @@ import {RequestBuilder} from "./requestBuilder";
 import {Endpoint, Field, FilledObject, FilterType, NeedReAuth} from "./resourceTypes";
 import {TypeChecker} from "./typeChecker";
 import type { Authenticator } from "./authenticator";
+import { ResourceLoader } from "./resourceLoader";
 
 
 const default_type_checker = new TypeChecker<'create' | 'update'>({
@@ -29,7 +30,6 @@ export class Resource<
     public max_storage_size: number | null;
     public is_full_object: ((obj: ContentType | undefined) => boolean) | null;
     public id_field_name: string;
-    public computed_fields: { [key: string]: ((obj: ContentType) => any) }
 
     private readonly authenticator: Authenticator
     private readonly type_checker: TypeChecker<'create' | 'update' | string>;
@@ -51,7 +51,6 @@ export class Resource<
         this.id_field_name = "id";
         this.authenticator = authenticator;
         this.type_checker = typeChecker;
-        this.computed_fields = {}
         this.pages_ended = false;
         this.endpoint = endpoint
     }
@@ -204,9 +203,6 @@ export class Resource<
         data: FormData | null = null,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
-        for (const field of Object.keys(this.computed_fields)) {
-            delete create_schema[field]
-        }
         this.type_checker.type_check(create_schema, "create");
         const request_builder = await this.create_request_builder()
         const response = request_builder.get_create_request(create_schema, data)
@@ -232,9 +228,6 @@ export class Resource<
         update_schema: UpdateContentType,
         _reload_on_error: boolean = true,
     ): Promise<ContentType> {
-        for (const field of Object.keys(this.computed_fields)) {
-            delete update_schema[field]
-        }
         this.type_checker.type_check(update_schema, "update");
         const request_builder = await this.create_request_builder()
         const response = request_builder.get_patch_request(id, update_schema);
