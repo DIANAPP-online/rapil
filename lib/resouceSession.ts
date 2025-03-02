@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig, isAxiosError } from "axios"
-import { Endpoint, GetConfigType } from "./resourceTypes"
+import { Endpoint, GetConfigType, NeedReAuth } from "./resourceTypes"
 
 
 export class ResourceSession {
@@ -68,9 +68,8 @@ export class ResourceSession {
   protected async run_with_alive_session_check<T extends Promise<any>>(
     method: T
   ): Promise<Awaited<T>> {
-    const error = new Error("Current session died")
     if (!this.is_alive) {
-      throw error
+      throw new NeedReAuth()
     }
 
     try {
@@ -78,7 +77,7 @@ export class ResourceSession {
     } catch (payload: unknown) {
       if (isAxiosError(payload) && payload.status === 401) {
         this.is_alive = false
-        throw error
+        throw new NeedReAuth()
       }
 
       throw payload
