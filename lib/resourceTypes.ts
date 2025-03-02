@@ -13,6 +13,8 @@ export interface FilledObject {
 export type PullMethods = "load" | "create" | "update"
 export type PushMethods = "create" | "update"
 
+export type FilterFnType<T> = (obj: T) => boolean
+export type SorterType<T> = (a: T, b: T) => number
 
 export type FilterType = {
     [field: string]: string | number | boolean | string[] | number[] | boolean[]
