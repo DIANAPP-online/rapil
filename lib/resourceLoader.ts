@@ -10,7 +10,6 @@ export class ResourceLoader<
 > {
   private readonly authenticator: Authenticator;
   private readonly endpoint: Endpoint;
-  private readonly id_field_name: string
   public page: number;
   public page_count: number;
   public pages_ended: boolean;
@@ -21,7 +20,6 @@ export class ResourceLoader<
   ) {
     this.authenticator = authenticator;
     this.endpoint = endpoint;
-    this.id_field_name = "id"
   }
 
   public async load(
