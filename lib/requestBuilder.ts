@@ -1,9 +1,9 @@
-import {ResourceSession, type Endpoint} from "./authenticator"
-import {BaseSchemaType, FilterType} from "./resourceTypes";
+import { ResourceSession } from "./resouceSession";
+import {BaseSchemaType, Endpoint, FilterType} from "./resourceTypes";
 
 export class RequestBuilder {
     public endpoint: Endpoint;
-    public session: ResourceSession<ContentType>;
+    public session: ResourceSession
 
     public constructor(endpoint: Endpoint, session: ResourceSession) {
         this.endpoint = endpoint;
