@@ -45,8 +45,8 @@ export class ResourceStorage<ContentType extends FilledObject> {
     return objects
   }
 
-  public get_by_filter(filterQuery: FilterType, filter_fn: FilterFnType<ContentType> | null = null): ContentType[] {
-    let objects = this.get_objects_by_filter(filterQuery, this.get_objects())
+  public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<ContentType> | null = null): ContentType[] {
+    let objects = this.get_objects_by_filter(filter_query, this.get_objects())
     if (filter_fn !== null) {
       objects = this.get_objects_by_filter_fn(filter_fn, objects)
     }
@@ -73,12 +73,9 @@ export class ResourceStorage<ContentType extends FilledObject> {
   }
 
   public load_objects_to_storage(id_field_name: string, objects: ContentType[]) {
-    const new_objects: ContentType[] = []
     for (const obj of objects) {
-      const newObject = this.load_object_to_storage(obj[id_field_name], obj)
-      new_objects.push(newObject)
+      this.load_object_to_storage(obj[id_field_name], obj)
     }
-    return new_objects
   }
 
   public get_compare_objects_function(enable_reverse_sort: boolean): SorterType<ContentType> {
@@ -131,7 +128,7 @@ export class ResourceStorage<ContentType extends FilledObject> {
     }
   }
 
-  private delete_object_from_storage(id: string): void {
+  public delete_object_from_storage(id: string): void {
     this.storage.delete(id)
   }
 }
