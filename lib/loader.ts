@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { FilledObject, FilterType, NeedReAuth, Endpoint } from "./resourceTypes";
+import { FilledObject, FilterType, NeedReAuth, Endpoint } from "./types";
 import { RequestBuilder } from "./requestBuilder";
 import { Authenticator } from "./authenticator";
 

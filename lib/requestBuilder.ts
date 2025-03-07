@@ -1,5 +1,5 @@
 import { ResourceSession } from "./resourceSession";
-import {BaseSchemaType, Endpoint, FilterType} from "./resourceTypes";
+import {BaseSchemaType, Endpoint, FilterType} from "./types";
 
 export class RequestBuilder {
     public endpoint: Endpoint;

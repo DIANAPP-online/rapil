@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig, isAxiosError } from "axios"
-import { Endpoint, GetConfigType, NeedReAuth } from "./resourceTypes"
+import { Endpoint, GetConfigType, NeedReAuth } from "./types"
 
 
 export class ResourceSession {

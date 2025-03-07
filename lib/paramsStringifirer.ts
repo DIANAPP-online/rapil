@@ -1,4 +1,4 @@
-import type { FilterType } from "./resourceTypes";
+import type { FilterType } from "./types";
 
 type Parameters = { [key: string]: FilterType }
 

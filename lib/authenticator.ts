@@ -1,6 +1,6 @@
 import { ParamsStringifier } from './paramsStringifirer';
-import { ResourceSession } from './resourceSession';
-import { Endpoint } from './resourceTypes';
+import { ResourceSession } from './session';
+import { Endpoint } from './types';
 import axios, {
   AxiosInstance,
 } from "axios"

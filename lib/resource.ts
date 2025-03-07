@@ -1,6 +1,6 @@
-import { ResourceLoader } from "./resourceLoader";
-import { ResourceStorage } from "./resourceStorage";
-import { FilledObject, FilterFnType, FilterType } from "./resourceTypes";
+import { ResourceLoader } from "./loader";
+import { ResourceStorage } from "./storage";
+import { FilledObject, FilterFnType, FilterType } from "./types";
 
 export class Resource<
   ContentType extends FilledObject,
