@@ -5,7 +5,7 @@ import { FilledObject, FilterFnType, FilterType } from './types'
 export class Resource<
   ContentType extends FilledObject,
   CreateContentType extends FilledObject,
-  UpdateContentType extends FilledObject
+  UpdateContentType extends FilledObject,
 >
  {
   protected readonly resourceStorage: ResourceStorage<ContentType>
@@ -49,6 +49,17 @@ export class Resource<
     const loaded_objects = await this.resourceLoader.load_by_filter(filter)
     this.resourceStorage.load_objects_to_storage(this.id_field_name, loaded_objects)
   }
+
+  public async load_photo(id: string): Promise<void> {
+    const loaded_photo = await this.resourceLoader.load_photo(id)
+    this.resourceStorage.load_photo_to_storage(this.id_field_name, loaded_photo)
+  }
+
+  public async load_photos(ids: string[]): Promise<void> {
+    const loaded_photos = await this.resourceLoader.load_photos(ids)
+    this.resourceStorage.load_photos_to_storage(this.id_field_name, loaded_photos)
+  }
+
 
   // ============================= Getters =============================
 

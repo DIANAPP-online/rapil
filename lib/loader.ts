@@ -12,12 +12,12 @@ const GET_REQUEST_BUILDER_METHOD = {
   load_by_filter: "get_load_py_filter_request"
 } as const
 
-type LoaderMethods = "create" | "update" | "delete" | "load" | "load_next_page" | "load_by_filter"
+type LoaderMethods = "create" | "update" | "delete" | "load" | "load_next_page" | "load_by_filter" | "load_photo"
 
 export class ResourceLoader<
     ContentType extends FilledObject, 
     CreateContentType extends FilledObject, 
-    UpdateContentType  extends FilledObject
+    UpdateContentType  extends FilledObject,
 > {
   private readonly authenticator: Authenticator;
   private readonly endpoint: Endpoint;
@@ -43,7 +43,7 @@ export class ResourceLoader<
     const loaded_object = await this.try_load_data<ContentType>("load", id, _reload_on_error);
 
     if (loaded_object === undefined) {
-      throw new Error("load object is undefined");
+      throw new Error("Loaded object is undefined");
     }
 
     return loaded_object
@@ -74,6 +74,29 @@ export class ResourceLoader<
     }
 
     return objects
+  }
+
+  public async load_photo(id: string, _reload_on_error: boolean = true): Promise<Base64URLString> {
+    const response = await this.try_load_data<Response>("load_photo", id, _reload_on_error)
+
+    if (response === undefined) {
+      throw new Error("Loaded photo is undefined")
+    }
+
+    const arrayBuffer = await response.bytes()
+    const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+    return base64String
+  }
+
+  public async load_photos(ids: string[], _reload_on_error: boolean = true): Promise<Base64URLString[]> {
+    const promises: Promise<Base64URLString>[] = []
+
+    for (const id of ids) {
+      promises.push(this.load_photo(id))
+    }
+
+    return Promise.all(promises)
   }
 
   public async load_by_filter(filter: FilterType, _reload_on_error: boolean = true): Promise<ContentType[]> {

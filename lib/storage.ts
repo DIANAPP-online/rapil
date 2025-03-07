@@ -1,17 +1,18 @@
 import { reactive, Reactive } from 'vue'
 import { Field, FilledObject, FilterFnType, FilterType, SorterType } from './types'
 
-export class ResourceStorage<ContentType extends FilledObject> {
+export class ResourceStorage<
+  ContentType extends FilledObject,
+  > {
   public readonly storage: Reactive<Map<string, ContentType | undefined>>
+  public readonly photos_storage: Reactive<Map<string, Base64URLString | undefined>>
   public max_storage_size: number | null
-  public id_field_name: string
   public sort_fields: Field[]
   public global_enable_reverse_sort: boolean
 
   constructor() {
     this.storage = reactive(new Map())
     this.max_storage_size = null
-    this.id_field_name = "id"
     this.sort_fields = []
     this.global_enable_reverse_sort = false
   }
@@ -48,6 +49,26 @@ export class ResourceStorage<ContentType extends FilledObject> {
     return objects
   }
 
+  public get_photo(id: string): Base64URLString {
+    const getted_photo = this.photos_storage.get(id) as Base64URLString
+
+    if (getted_photo === undefined) {
+      throw new Error("Photo is undefined")
+    }
+
+    return getted_photo
+  }
+
+  public get_photos(ids: string[]): Base64URLString[] {
+    const getted_photos: Base64URLString[] = []
+
+    for (const id of ids) {
+      getted_photos.push(this.get_photo(id))
+    }
+
+    return getted_photos
+  }
+
   public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<ContentType> | null = null): ContentType[] {
     let objects = this.get_objects_by_filter(filter_query, this.get_objects())
     if (filter_fn !== null) {
@@ -78,6 +99,16 @@ export class ResourceStorage<ContentType extends FilledObject> {
   public load_objects_to_storage(id_field_name: string, objects: ContentType[]) {
     for (const obj of objects) {
       this.load_object_to_storage(obj[id_field_name], obj)
+    }
+  }
+
+  public load_photo_to_storage(id: string, photo: Base64URLString) {
+    this.photos_storage.set(id, photo as any)
+  }
+
+  public load_photos_to_storage(id_field_name: string, photos: Base64URLString[]) {
+    for (const photo of photos) {
+      this.load_photo_to_storage(photo[id_field_name], photo)
     }
   }
 
