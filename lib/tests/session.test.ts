@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { isNativeError } from 'util/types'
-import { ResourceSession } from '../resouceSession'
+import { ResourceSession } from '../session'
 import { expect, test } from 'vitest'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
