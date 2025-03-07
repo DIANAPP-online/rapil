@@ -11,6 +11,7 @@ export class Resource<
   protected readonly resourceStorage: ResourceStorage<ContentType>
   protected readonly resourceLoader: ResourceLoader<ContentType, CreateContentType, UpdateContentType>
   protected readonly id_field_name: string
+  public always_load: boolean
 
   constructor(
     resourceStorage: ResourceStorage<ContentType>, 
@@ -19,11 +20,16 @@ export class Resource<
     this.resourceLoader = resourceLoader
     this.resourceStorage = resourceStorage
     this.id_field_name = 'id'
+    this.always_load = true
   }
 
   // ============================= Loaders =============================
 
   public async load(id: string): Promise<void> {
+    if (!this.always_load && this.resourceStorage.storage.has(id)) {
+      return
+    }
+
     const loaded_object = await this.resourceLoader.load(id)
     const id_loaded_object = loaded_object[this.id_field_name]
     this.resourceStorage.load_object_to_storage(id_loaded_object, loaded_object)
@@ -46,7 +52,7 @@ export class Resource<
 
   // ============================= Getters =============================
 
-  public get(id: string | undefined, default_value?: ContentType | undefined): ContentType {
+  public get(id: string | undefined, default_value: ContentType): ContentType {
     return this.resourceStorage.get(id, default_value)
   }
 

@@ -1,5 +1,5 @@
 import { reactive, Reactive } from 'vue'
-import { Field, FilledObject, FilterFnType, FilterType, SorterType } from './resourceTypes'
+import { Field, FilledObject, FilterFnType, FilterType, SorterType } from './types'
 
 export class ResourceStorage<ContentType extends FilledObject> {
   public readonly storage: Reactive<Map<string, ContentType | undefined>>
