@@ -1,4 +1,4 @@
-import { ResourceSession } from "./resourceSession";
+import { ResourceSession } from "./session";
 import {BaseSchemaType, Endpoint, FilterType} from "./types";
 
 export class RequestBuilder {
