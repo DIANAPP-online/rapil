@@ -11,6 +11,9 @@ export class ResourceStorage<ContentType extends FilledObject> {
   constructor() {
     this.storage = reactive(new Map())
     this.max_storage_size = null
+    this.id_field_name = "id"
+    this.sort_fields = []
+    this.global_enable_reverse_sort = false
   }
 
   public get(id: string | undefined, default_value: ContentType | undefined = undefined): ContentType {
@@ -79,7 +82,7 @@ export class ResourceStorage<ContentType extends FilledObject> {
   }
 
   public get_compare_objects_function(enable_reverse_sort: boolean): SorterType<ContentType> {
-    function compare_objects(a: ContentType, b: ContentType) {
+    const compare_objects = (a: ContentType, b: ContentType) => {
       for (const compare_field of this.sort_fields) {
         const value_of_type_sort = this.global_enable_reverse_sort ? this.global_enable_reverse_sort : enable_reverse_sort
         const sort_number = 2 * Number(!value_of_type_sort) - 1
@@ -123,8 +126,8 @@ export class ResourceStorage<ContentType extends FilledObject> {
   private clean_storage(): void {
     const ids_iter = this.storage.keys()
     while (this.max_storage_size !== null && this.storage.size >= this.max_storage_size) {
-      const deleteID = ids_iter.next().value
-      this.delete_object_from_storage(deleteID)
+      const delete_id = ids_iter.next().value
+      this.delete_object_from_storage(delete_id as string)
     }
   }
 

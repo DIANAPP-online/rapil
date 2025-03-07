@@ -9,7 +9,7 @@ export class Resource<
 >
  {
   protected readonly resourceStorage: ResourceStorage<ContentType>
-  protected readonly resourceLoader: ResourceLoader<ContentType, CreateContentType, UpdateContentType>
+  public readonly resourceLoader: ResourceLoader<ContentType, CreateContentType, UpdateContentType>
   protected readonly id_field_name: string
 
   constructor(

@@ -1,5 +1,5 @@
 import { ParamsStringifier } from './paramsStringifirer';
-import { ResourceSession } from './resouceSession';
+import { ResourceSession } from './resourceSession';
 import { Endpoint } from './resourceTypes';
 import axios, {
   AxiosInstance,
@@ -7,12 +7,11 @@ import axios, {
 
 type BaseURL = `https://${string}` | `http://${string}`
 
-
 export interface Authenticator {
   get_session: () => Promise<ResourceSession>
 }
 
-class OAuth2 implements Authenticator {
+export class OAuth2 implements Authenticator {
   protected session: ResourceSession
   protected is_login_loading: boolean
   protected is_relogin_loading: boolean
@@ -21,17 +20,29 @@ class OAuth2 implements Authenticator {
   protected readonly TIME_SLEEP: number
   protected api: AxiosInstance
   protected refresh_token: string | null
+  protected access_token: string | null
 
   constructor(auth_endpoint: Endpoint, base_url: BaseURL) {
     this.is_login_loading = false
     this.TIME_SLEEP = 200
     this.auth_endpoint = auth_endpoint
     this.base_url = base_url
-    this.get_refresh_token()
+    this.refresh_token = null
+    this.access_token = null
+    this.api = axios.create()
+    this.session = new ResourceSession(this.api)
+    this.is_relogin_loading = false
+    this.is_login_loading = false
+    this.get_tokens()
   }
 
-  protected get_refresh_token() {
+  protected get_tokens() {
     this.refresh_token = localStorage.getItem("refresh_token")
+    this.access_token = localStorage.getItem("access_token")
+
+    if (this.access_token) {
+      this.api = this.initializeApi(this.access_token, 'Bearer')
+    }
   }
 
   private sleep(ms: number) {
@@ -68,7 +79,12 @@ class OAuth2 implements Authenticator {
 
     const response = await this.api.post(this.auth_endpoint, form_data)
 
-    this.refresh_token = response.data.refresh_token
+    if (response.data.refresh_token && response.data.access_token) {
+      this.refresh_token = response.data.refresh_token as string
+      this.access_token = response.data.access_token as string
+      localStorage.setItem("access_token", this.access_token)
+      localStorage.setItem("refresh_token", this.refresh_token)
+    }
 
     const api = this.initializeApi(
       response.data.access_token,
@@ -104,6 +120,11 @@ class OAuth2 implements Authenticator {
     if (this.is_login_loading) {
       this.is_relogin_loading = false
       return
+    }
+
+    if (response.data.refresh_token && response.data.access_token) {
+      this.access_token = response.data.access_token as string
+      localStorage.setItem("access_token", this.access_token)
     }
 
     const api = this.initializeApi(

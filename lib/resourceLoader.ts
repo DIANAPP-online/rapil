@@ -3,6 +3,17 @@ import { FilledObject, FilterType, NeedReAuth, Endpoint } from "./resourceTypes"
 import { RequestBuilder } from "./requestBuilder";
 import { Authenticator } from "./authenticator";
 
+const GET_REQUEST_BUILDER_METHOD = {
+  create: "get_create_request",
+  update: "get_patch_request",
+  delete: "get_delete_request",
+  load: "get_load_one_request",
+  load_next_page: "get_load_next_page_request",
+  load_by_filter: "get_load_py_filter_request"
+} as const
+
+type LoaderMethods = "create" | "update" | "delete" | "load" | "load_next_page" | "load_by_filter"
+
 export class ResourceLoader<
     ContentType extends FilledObject, 
     CreateContentType extends FilledObject, 
@@ -20,6 +31,9 @@ export class ResourceLoader<
   ) {
     this.authenticator = authenticator;
     this.endpoint = endpoint;
+    this.page = 0
+    this.page_count = 50
+    this.pages_ended = false
   }
 
   public async load(
@@ -106,18 +120,20 @@ export class ResourceLoader<
     this.try_load_data<void>("delete", id, _reload_on_error)
   }
 
-  protected async try_load_data<T>(name_method: string, ...args: any[]): Promise<T> {
+  protected async try_load_data<ReturnType>(loader_method: LoaderMethods, ...args: any[]): Promise<ReturnType> {
     const POSITION_PARAMETER_FOR_REALOD = args.length - 1
-    const request_builder = await this.create_request_builder();
     const _reload_on_error = args[POSITION_PARAMETER_FOR_REALOD]
-    
+
+    const request_builder: any = await this.create_request_builder();
+    const name_method_of_request_builder = GET_REQUEST_BUILDER_METHOD[loader_method]
+
     try {
-      const response = await request_builder[name_method](...args)
-      return this.response_check<T>(response, name_method) as T
+      const response = await request_builder[name_method_of_request_builder](...args)
+      return this.response_check<ReturnType>(response, loader_method) as ReturnType
     } catch (e: unknown) {
       if (e instanceof NeedReAuth && _reload_on_error) {
         args[POSITION_PARAMETER_FOR_REALOD] = false
-        return await this.try_load_data(name_method, ...args)
+        return await this.try_load_data(loader_method, ...args)
       } else {
         throw new AxiosError('Relogin throw error')
       }
