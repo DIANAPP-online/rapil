@@ -3,27 +3,27 @@ import type { FilterType } from "./types";
 type Parameters = { [key: string]: FilterType }
 
 export class ParamsStringifier {
-    public static stringifyParameters(params: Parameters): string {
-        let queryString = ''
-        for (const [parameterName, parameterValue] of Object.entries(params)) {
-            queryString += this.stringifyParameter(parameterName, parameterValue)
+    public static stringify_parameters(params: Parameters): string {
+        let query_string = ''
+        for (const [parameter_name, parameter_value] of Object.entries(params)) {
+            query_string += this.stringify_parameter(parameter_name, parameter_value)
         }
 
-        return queryString
+        return query_string
     }
 
-    public static stringifyParameter(parameterName: string, parameterValue: FilterType): string {
-        if (!Array.isArray(parameterValue)) {
-            return `${parameterName}=${parameterValue}`
+    public static stringify_parameter(parameter_name: string, parameter_value: FilterType): string {
+        if (!Array.isArray(parameter_value)) {
+            return `${parameter_name}=${parameter_value}`
         }
         
-        const queryArray: string[] = []
+        const query_array: string[] = []
 
-        for (const elementParameterValue in parameterValue) {
-            queryArray.push(`${parameterName}=${elementParameterValue}`)
+        for (const element_parameter_value in parameter_value) {
+            query_array.push(`${parameter_name}=${element_parameter_value}`)
         }
 
-        return queryArray.join('&')
+        return query_array.join('&')
     }
 }
 

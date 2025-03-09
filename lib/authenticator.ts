@@ -148,7 +148,7 @@ export class OAuth2 implements Authenticator {
   ): AxiosInstance {
     const api = axios.create({
       baseURL: this.base_url,
-      paramsSerializer: params => ParamsStringifier.stringifyParameters(params),
+      paramsSerializer: params => ParamsStringifier.stringify_parameters(params),
       validateStatus: () => true,
     })
 
