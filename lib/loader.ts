@@ -8,6 +8,7 @@ const GET_REQUEST_BUILDER_METHOD = {
   update: "get_patch_request",
   delete: "get_delete_request",
   load: "get_load_one_request",
+  load_photo: "get_load_one_request",
   load_next_page: "get_load_next_page_request",
   load_by_filter: "get_load_py_filter_request"
 } as const
@@ -19,11 +20,11 @@ export class ResourceLoader<
     CreateContentType extends FilledObject, 
     UpdateContentType  extends FilledObject,
 > {
-  private readonly authenticator: Authenticator;
-  private readonly endpoint: Endpoint;
   public page: number;
   public page_count: number;
   public pages_ended: boolean;
+  protected readonly endpoint: Endpoint;
+  protected readonly authenticator: Authenticator;
 
   constructor(
     authenticator: Authenticator, 
@@ -50,7 +51,7 @@ export class ResourceLoader<
   }
 
   public async load_list(ids: string[]): Promise<ContentType[]> {
-    let promises: Promise<ContentType>[] = [];
+    const promises: Promise<ContentType>[] = [];
     for (const id of ids) {
       promises.push(this.load(id));
     }
@@ -76,6 +77,15 @@ export class ResourceLoader<
     return objects
   }
 
+  public async load_by_filter(filter: FilterType, _reload_on_error: boolean = true): Promise<ContentType[]> {
+    const objects = await this.try_load_data<ContentType[]>("load_by_filter", filter, _reload_on_error)
+
+    if (objects === undefined) {
+      throw new Error("load_by_filter object is undefined");
+    }
+    return objects;
+  }
+
   public async load_photo(id: string, _reload_on_error: boolean = true): Promise<Base64URLString> {
     const response = await this.try_load_data<Response>("load_photo", id, _reload_on_error)
 
@@ -97,15 +107,6 @@ export class ResourceLoader<
     }
 
     return Promise.all(promises)
-  }
-
-  public async load_by_filter(filter: FilterType, _reload_on_error: boolean = true): Promise<ContentType[]> {
-    const objects = await this.try_load_data<ContentType[]>("load_by_filter", filter, _reload_on_error)
-
-    if (objects === undefined) {
-      throw new Error("load_by_filter object is undefined");
-    }
-    return objects;
   }
 
   // ============================= Data manipulating =============================
