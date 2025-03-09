@@ -10,12 +10,12 @@ export class Resource<
   UpdateElementType extends FilledObject,
 >
  {
+  public always_load: boolean
   protected readonly resource_storage: ResourceStorage<ElementType>
   protected readonly resource_element_loader: ResourceElementLoader<ElementType>
   protected readonly resource_photo_loader: ResourcePhotoLoader
   protected readonly resource_element_manipulate: ResourceElementManipulate<ElementType, CreateElementType, UpdateElementType>
   protected readonly id_field_name: string
-  public always_load: boolean
 
   constructor(
     resource_storage: ResourceStorage<ElementType>, 

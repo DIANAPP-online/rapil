@@ -1,11 +1,9 @@
 import { ParamsStringifier } from './paramsStringifirer';
 import { ResourceSession } from './session';
-import { Endpoint } from './types';
+import { BaseURL, Endpoint } from './types';
 import axios, {
   AxiosInstance,
 } from "axios"
-
-type BaseURL = `https://${string}` | `http://${string}`
 
 export interface Authenticator {
   get_session: () => Promise<ResourceSession>
