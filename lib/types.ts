@@ -20,6 +20,8 @@ export type FilterType = {
     [field: string]: string | number | boolean | string[] | number[] | boolean[]
 }
 
+export type LoaderMethods = "create" | "update" | "delete" | "load" | "load_next_page" | "load_by_filter" | "load_photo"
+
 export class NeedReAuth extends Error {
     constructor () {
         super("Need reauth")
