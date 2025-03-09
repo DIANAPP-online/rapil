@@ -33,20 +33,7 @@ export class OAuth2 implements Authenticator {
     this.session = new ResourceSession(this.api)
     this.is_relogin_loading = false
     this.is_login_loading = false
-    this.get_tokens()
-  }
-
-  protected get_tokens() {
-    this.refresh_token = localStorage.getItem("refresh_token")
-    this.access_token = localStorage.getItem("access_token")
-
-    if (this.access_token) {
-      this.api = this.initializeApi(this.access_token, 'Bearer')
-    }
-  }
-
-  private sleep(ms: number) {
-    return new Promise((r) => setTimeout(r, ms))
+    this.get_refresh_token()
   }
 
   public async login(
@@ -96,7 +83,18 @@ export class OAuth2 implements Authenticator {
     this.is_login_loading = false
   }
 
-  private async relogin(): Promise<void> {
+  public async get_session(): Promise<ResourceSession> {
+    const have_session = Boolean(this.session)
+    const is_alive_session = this.session.is_alive
+
+    if (!have_session || !is_alive_session) {
+      await this.relogin()
+    }
+
+    return this.session
+  }
+
+  protected async relogin(): Promise<void> {
     if (this.is_relogin_loading || this.is_login_loading) {
       while (this.is_relogin_loading || this.is_login_loading) {
         await this.sleep(this.TIME_SLEEP)
@@ -112,8 +110,8 @@ export class OAuth2 implements Authenticator {
     this.is_relogin_loading = true
     const form_data = new FormData()
 
-    form_data.append("grant_type", "refresh_token")
     form_data.append("refresh_token", this.refresh_token)
+    form_data.append("grant_type", "refresh_token")
 
     const response = await this.api.post(this.auth_endpoint, form_data)
 
@@ -135,6 +133,15 @@ export class OAuth2 implements Authenticator {
     this.session = new ResourceSession(api)
     this.is_relogin_loading = false
   }
+
+  protected get_refresh_token() {
+    this.refresh_token = localStorage.getItem("refresh_token")
+  }
+
+  protected sleep(ms: number) {
+    return new Promise((r) => setTimeout(r, ms))
+  }
+
   protected initializeApi(
     access_token: string,
     token_type: string
@@ -148,16 +155,5 @@ export class OAuth2 implements Authenticator {
     api.defaults.headers["Authorization"] = token_type + " " + access_token
 
     return api
-  }
-
-  public async get_session(): Promise<ResourceSession> {
-    const have_session = Boolean(this.session)
-    const is_alive_session = this.session.is_alive
-
-    if (!have_session || !is_alive_session) {
-      await this.relogin()
-    }
-
-    return this.session
   }
 }
