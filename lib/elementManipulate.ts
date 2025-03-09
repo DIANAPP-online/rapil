@@ -24,15 +24,28 @@ export class ResourceElementManipulate<
     return response;
   }
 
-  public async update(
+  public async patch(
     id: string,
     update_schema: UpdateElementType,
     _reload_on_error: boolean = true
   ): Promise<ElementType> {
-    const response = await this.try_load_data<ElementType>("update", id, update_schema, _reload_on_error)
+    const response = await this.try_load_data<ElementType>("patch", id, update_schema, _reload_on_error)
 
     if (response === undefined) {
       throw new Error("update object is undefined");
+    }
+    return response;
+  }
+
+  public async put(
+    id: string,
+    update_schema: UpdateElementType,
+    _reload_on_error: boolean = true
+  ): Promise<ElementType> {
+    const response = await this.try_load_data<ElementType>("put", id, update_schema, _reload_on_error)
+
+    if (response === undefined) {
+      throw new Error("put object is undefined");
     }
     return response;
   }

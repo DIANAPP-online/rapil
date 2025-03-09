@@ -93,8 +93,13 @@ export class Resource<
     this.resource_storage.load_object_to_storage(created_object_id, created_object)
   }
 
-  public async update(id: string, update_schema: UpdateElementType): Promise<void> {
-    const updated_object = await this.resource_element_manipulate.update(id, update_schema)
+  public async patch(id: string, update_schema: UpdateElementType): Promise<void> {
+    const updated_object = await this.resource_element_manipulate.patch(id, update_schema)
+    this.resource_storage.load_object_to_storage(id, updated_object)
+  }
+
+  public async put(id: string, update_schema: UpdateElementType): Promise<void> {
+    const updated_object = await this.resource_element_manipulate.put(id, update_schema)
     this.resource_storage.load_object_to_storage(id, updated_object)
   }
 

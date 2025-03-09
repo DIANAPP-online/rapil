@@ -5,7 +5,8 @@ import { Endpoint, LoaderMethods, NeedReAuth } from "./types"
 
 const GET_REQUEST_BUILDER_METHOD = {
   create: 'get_create_request',
-  update: 'get_patch_request',
+  put: 'get_put_request',
+  patch: 'get_patch_request',
   delete: 'get_delete_request',
   load: 'get_load_one_request',
   load_photo: 'get_load_one_request',
