@@ -6,7 +6,7 @@ import { ResourceSession } from '../session'
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function send_hello() {
-  await sleep(0)
+  await sleep(100)
   return 'hello'
 }
 
