@@ -73,32 +73,3 @@ test('test session is not alive after error', () => {
 test('test died session throws error', async () => {
   await expect(sessionTest.test_die_session()).resolves.toBeTruthy()
 })
-
-// vi.mock('axios')
-
-// const BASE_URL = 'https://jsonplaceholder.typicode.com'
-
-// const fetchUsers = async () => {
-//   return (await axios.get(`${BASE_URL}/users`)).data
-// }
-
-// describe('Session Requests', () => {
-//   beforeEach(() => {
-//     vi.fn().mockReset()
-//   })
-
-//   describe('fetchUsers', () => {
-//     test('makes a GET request to fetch users', async () => {
-//       const usersMock = [{ id: 1 }, { id: 2 }]
-
-//       vi.fn().mockResolvedValue({
-//         data: usersMock,
-//       })
-
-//       const users = await fetchUsers()
-
-//       expect(axios.get).toHaveBeenCalledWith('https://jsonplaceholder.typicode.com/users')
-//       expect(users).toStrictEqual(usersMock)
-//     })
-//   })
-// })

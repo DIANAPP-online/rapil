@@ -16,7 +16,9 @@ export class ResourceSession {
     config: GetConfigType
   ): Promise<ContentType> {
     if (config.id) {
-      return await this.run_with_alive_session_check(this.api.get(`${endpoint}/${config.id}`))
+      const id = config.id
+      delete config.id
+      return await this.run_with_alive_session_check(this.api.get(`${endpoint}/${id}`, { data: config }))
     }
 
     return await this.run_with_alive_session_check(this.api.get(`${endpoint}`, { data: config }))
