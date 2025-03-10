@@ -1,6 +1,6 @@
 {
   "name": "rapil",
-  "private": true,
+  "private": false,
   "version": "0.0.2",
   "description": "Resource API Library - Work with restfull APIs",
   "main": "index.ts",
