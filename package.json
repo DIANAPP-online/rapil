@@ -4,6 +4,9 @@
   "version": "0.0.4",
   "description": "Resource API Library - Work with restfull APIs",
   "main": "index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
   "dependencies": {
     "@types/node": "^22.0.0",
     "axios": "^1.7.2",

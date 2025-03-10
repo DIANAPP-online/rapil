@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { isNativeError } from 'util/types'
 import { ResourceSession } from '../session'
-import { expect, test } from 'vitest'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -25,12 +25,12 @@ class SessionTest extends ResourceSession {
       error.status = 401
       throw error
     })
-    
+
     try {
       await this.run_with_alive_session_check(promise)
       return false
     } catch (e: unknown) {
-      if (!isNativeError(e) || e.message !== 'Current session died') {
+      if (!isNativeError(e) || (e as Error).message !== 'Need reauth') {
         return false
       } else {
         return true
@@ -38,13 +38,15 @@ class SessionTest extends ResourceSession {
     }
   }
 
-  public async test_die_session(): Promise<boolean> {
-    const promise = new Promise<string>(() => 'hello')
+  public test_alive_dead(): boolean {
+    return !this.is_alive
+  }
 
+  public async test_die_session(): Promise<boolean> {
     try {
-      await this.run_with_alive_session_check(promise)
+      await this.run_with_alive_session_check(send_hello())
     } catch (e: unknown) {
-      if (!isNativeError(e) || e.message !== 'Current session died') {
+      if (!isNativeError(e) || e.message !== 'Need reauth') {
         return false
       } else {
         return true
@@ -64,6 +66,39 @@ test('test axios error', async () => {
   await expect(sessionTest.test_error_response_session()).resolves.toBeTruthy()
 })
 
-test('test session die', async () => {
+test('test session is not alive after error', () => {
+  expect(sessionTest.test_alive_dead()).toBeTruthy()
+})
+
+test('test died session throws error', async () => {
   await expect(sessionTest.test_die_session()).resolves.toBeTruthy()
 })
+
+// vi.mock('axios')
+
+// const BASE_URL = 'https://jsonplaceholder.typicode.com'
+
+// const fetchUsers = async () => {
+//   return (await axios.get(`${BASE_URL}/users`)).data
+// }
+
+// describe('Session Requests', () => {
+//   beforeEach(() => {
+//     vi.fn().mockReset()
+//   })
+
+//   describe('fetchUsers', () => {
+//     test('makes a GET request to fetch users', async () => {
+//       const usersMock = [{ id: 1 }, { id: 2 }]
+
+//       vi.fn().mockResolvedValue({
+//         data: usersMock,
+//       })
+
+//       const users = await fetchUsers()
+
+//       expect(axios.get).toHaveBeenCalledWith('https://jsonplaceholder.typicode.com/users')
+//       expect(users).toStrictEqual(usersMock)
+//     })
+//   })
+// })
