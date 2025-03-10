@@ -20,6 +20,7 @@
     "eslint-plugin-promise": "^6.6.0",
     "typescript": "^5.2.2",
     "vite": "^5.3.5",
+    "vitest": "^3.0.7",
     "vue-tsc": "^2.0.24"
   }
 }
