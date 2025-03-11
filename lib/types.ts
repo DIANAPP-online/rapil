@@ -30,6 +30,15 @@ export class NeedReAuth extends Error {
     }
 }
 
+export class IncorrectDataForAuth extends Error {
+    public readonly status: number;
+    public static message: string = 'Incorrect login or password'
+    constructor() {
+        super(IncorrectDataForAuth.message)
+        this.status = 401
+    }
+}
+
 export type Endpoint = `/${string}`
 
 export type GetConfigType = {

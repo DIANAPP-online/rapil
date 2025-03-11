@@ -1,6 +1,6 @@
 import { ParamsStringifier } from './paramsStringifirer';
 import { ResourceSession } from './session';
-import { BaseURL, Endpoint } from './types';
+import { BaseURL, Endpoint, IncorrectDataForAuth } from './types';
 import axios, {
   AxiosInstance,
 } from "axios"
@@ -59,17 +59,21 @@ export class OAuth2 implements Authenticator {
 
     this.api = axios.create({
       baseURL: this.base_url,
-      validateStatus: () => true,
+      validateStatus: function(status) {
+        return status === 201
+      },
     })
 
     const response = await this.api.post(this.auth_endpoint, form_data)
 
-    if (response.data.refresh_token && response.data.access_token) {
-      this.refresh_token = response.data.refresh_token as string
-      this.access_token = response.data.access_token as string
-      localStorage.setItem("access_token", this.access_token)
-      localStorage.setItem("refresh_token", this.refresh_token)
+    if (response.status === 401) {
+      throw new IncorrectDataForAuth()
     }
+
+    this.refresh_token = response.data.refresh_token as string
+    this.access_token = response.data.access_token as string
+    localStorage.setItem("access_token", this.access_token)
+    localStorage.setItem("refresh_token", this.refresh_token)
 
     const api = this.initializeApi(
       response.data.access_token,
@@ -149,7 +153,6 @@ export class OAuth2 implements Authenticator {
       paramsSerializer: params => ParamsStringifier.stringify_parameters(params),
       validateStatus: () => true,
     })
-
     api.defaults.headers["Authorization"] = token_type + " " + access_token
 
     return api
