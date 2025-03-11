@@ -59,14 +59,13 @@ export class OAuth2 implements Authenticator {
 
     this.api = axios.create({
       baseURL: this.base_url,
-      validateStatus: function(status) {
-        return status === 201
-      },
+      validateStatus: () => true
     })
 
     const response = await this.api.post(this.auth_endpoint, form_data)
 
     if (response.status === 401) {
+      this.is_login_loading = false
       throw new IncorrectDataForAuth()
     }
 

@@ -9,6 +9,8 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }));
 
+let counter = 0
+
 vi.mock('axios', async(importActual) => {
   const actual = await importActual<typeof import ('axios')>();
 
@@ -27,6 +29,8 @@ vi.mock('axios', async(importActual) => {
 });
 
 class AuthTest extends OAuth2 {
+  protected counter: number = 0
+
   public async test_login_successed() {
     await this.login('username', 'password')
     return this.session.api.defaults.headers["Authorization"] === "b 1"
@@ -34,6 +38,11 @@ class AuthTest extends OAuth2 {
 
   public async test_login_incorrectable_data() {
     await this.login('s', 'p')
+  }
+
+  public async test_login_counts(a: string, b: string) {
+    await this.login(a, b)
+    this.counter++
   }
 }
 
@@ -51,10 +60,16 @@ describe('Authenticator tests', () => {
   })
 
   test('test login unsuccessed', async () => {
-    const error = new IncorrectDataForAuth()
-    mocks.post.mockImplementation(() => {
-      throw error
-    })
+    mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
     await expect(authTest.test_login_incorrectable_data()).rejects.toThrowError(IncorrectDataForAuth.message)
+  })
+
+  test('test parallel login', async () => {
+    mocks.post.mockImplementation(() => {
+      counter++
+      return { status: 201, data: { access_token: 'a', refresh_token: 'b', type_token: 'c' } }
+    })
+    await Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])
+    expect(counter).toBe(1)
   })
 })
