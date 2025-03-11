@@ -2,21 +2,21 @@ import { Authenticator } from "./authenticator";
 import { ResourceAPI } from "./resourceAPI";
 import { Endpoint, FilledObject } from "./types";
 
-export class ResourceElementManipulate<
-  ElementType extends FilledObject,
-  CreateElementType extends FilledObject,
-  UpdateElementType extends FilledObject,
+export class ResourceJSONManipulate<
+  JSONType extends FilledObject,
+  CreateJSONType extends FilledObject,
+  UpdateJSONType extends FilledObject,
 > extends ResourceAPI {
   constructor(authenticator: Authenticator, endpoint: Endpoint) {
     super(authenticator, endpoint)
   }
 
   public async create(
-    create_schema: CreateElementType,
+    create_schema: CreateJSONType,
     data: FormData | null = null,
     _reload_on_error: boolean = true
-  ): Promise<ElementType> {
-    const response = await this.try_load_data<ElementType>("create", create_schema, data, _reload_on_error)
+  ): Promise<JSONType> {
+    const response = await this.try_load_data<JSONType>("create", create_schema, data, _reload_on_error)
 
     if (response === undefined) {
       throw new Error("create object is undefined");
@@ -26,10 +26,10 @@ export class ResourceElementManipulate<
 
   public async patch(
     id: string,
-    update_schema: UpdateElementType,
+    update_schema: UpdateJSONType,
     _reload_on_error: boolean = true
-  ): Promise<ElementType> {
-    const response = await this.try_load_data<ElementType>("patch", id, update_schema, _reload_on_error)
+  ): Promise<JSONType> {
+    const response = await this.try_load_data<JSONType>("patch", id, update_schema, _reload_on_error)
 
     if (response === undefined) {
       throw new Error("update object is undefined");
@@ -39,10 +39,10 @@ export class ResourceElementManipulate<
 
   public async put(
     id: string,
-    update_schema: UpdateElementType,
+    update_schema: UpdateJSONType,
     _reload_on_error: boolean = true
-  ): Promise<ElementType> {
-    const response = await this.try_load_data<ElementType>("put", id, update_schema, _reload_on_error)
+  ): Promise<JSONType> {
+    const response = await this.try_load_data<JSONType>("put", id, update_schema, _reload_on_error)
 
     if (response === undefined) {
       throw new Error("put object is undefined");

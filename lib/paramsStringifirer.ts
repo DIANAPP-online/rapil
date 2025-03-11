@@ -19,8 +19,8 @@ export class ParamsStringifier {
         
         const query_array: string[] = []
 
-        for (const element_parameter_value in parameter_value) {
-            query_array.push(`${parameter_name}=${element_parameter_value}`)
+        for (const json_parameter_value in parameter_value) {
+            query_array.push(`${parameter_name}=${json_parameter_value}`)
         }
 
         return query_array.join('&')

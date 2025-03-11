@@ -1,60 +1,60 @@
-import { ResourceElementLoader } from './elementLoader'
-import { ResourceElementManipulate } from './elementManipulate'
+import { ResourceJSONLoader } from './jsonLoader'
+import { ResourceJSONManipulate } from './jsonManipulate'
 import { ResourcePhotoLoader } from './photoLoader'
 import { ResourceStorage } from './storage'
 import { FilledObject, FilterFnType, FilterType } from './types'
 
 export class Resource<
-  ElementType extends FilledObject,
-  CreateElementType extends FilledObject,
-  UpdateElementType extends FilledObject,
+  JSONType extends FilledObject,
+  CreateJSONType extends FilledObject,
+  UpdateJSONType extends FilledObject,
 >
  {
   public always_load: boolean
-  protected readonly resource_storage: ResourceStorage<ElementType>
-  protected readonly resource_element_loader: ResourceElementLoader<ElementType>
+  protected readonly resource_storage: ResourceStorage<JSONType>
+  protected readonly resource_json_loader: ResourceJSONLoader<JSONType>
   protected readonly resource_photo_loader: ResourcePhotoLoader
-  protected readonly resource_element_manipulate: ResourceElementManipulate<ElementType, CreateElementType, UpdateElementType>
+  protected readonly resource_json_manipulate: ResourceJSONManipulate<JSONType, CreateJSONType, UpdateJSONType>
   protected readonly id_field_name: string
 
   constructor(
-    resource_storage: ResourceStorage<ElementType>, 
-    resource_element_loader: ResourceElementLoader<ElementType>,
+    resource_storage: ResourceStorage<JSONType>, 
+    resource_json_loader: ResourceJSONLoader<JSONType>,
     resource_photo_loader: ResourcePhotoLoader,
-    resource_element_manipulate: ResourceElementManipulate<ElementType, CreateElementType, UpdateElementType>
+    resource_json_manipulate: ResourceJSONManipulate<JSONType, CreateJSONType, UpdateJSONType>
   ) {
     this.resource_storage = resource_storage
-    this.resource_element_loader = resource_element_loader
+    this.resource_json_loader = resource_json_loader
     this.resource_photo_loader = resource_photo_loader
-    this.resource_element_manipulate = resource_element_manipulate
+    this.resource_json_manipulate = resource_json_manipulate
     this.id_field_name = 'id'
     this.always_load = true
   }
 
-  // ============================= Loaders Elements =============================
+  // ============================= Loaders JSONs =============================
 
   public async load(id: string): Promise<void> {
     if (!this.always_load && this.resource_storage.storage.has(id)) {
       return
     }
 
-    const loaded_object = await this.resource_element_loader.load_element(id)
+    const loaded_object = await this.resource_json_loader.load_json(id)
     const id_loaded_object = loaded_object[this.id_field_name]
     this.resource_storage.load_object_to_storage(id_loaded_object, loaded_object)
   }
 
   public async load_list(ids: string[]): Promise<void> {
-    const loaded_objects = await this.resource_element_loader.load_element_list(ids)
+    const loaded_objects = await this.resource_json_loader.load_json_list(ids)
     this.resource_storage.load_objects_to_storage(this.id_field_name, loaded_objects)
   }
 
   public async load_next_page(): Promise<void> {
-    const loaded_objects = await this.resource_element_loader.load_next_page()
+    const loaded_objects = await this.resource_json_loader.load_next_page()
     this.resource_storage.load_objects_to_storage(this.id_field_name, loaded_objects)
   }
 
   public async load_by_filter(filter: FilterType): Promise<void> {
-    const loaded_objects = await this.resource_element_loader.load_by_filter(filter)
+    const loaded_objects = await this.resource_json_loader.load_by_filter(filter)
     this.resource_storage.load_objects_to_storage(this.id_field_name, loaded_objects)
   }
 
@@ -73,38 +73,38 @@ export class Resource<
 
   // ============================= Getters =============================
 
-  public get(id: string | undefined, default_value: ElementType): ElementType {
+  public get(id: string | undefined, default_value: JSONType): JSONType {
     return this.resource_storage.get(id, default_value)
   }
 
-  public get_objects(enable_revers_sort?: boolean): ElementType[] {
+  public get_objects(enable_revers_sort?: boolean): JSONType[] {
     return this.resource_storage.get_objects(enable_revers_sort)
   }
 
-  public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<ElementType> | null = null): ElementType[] {
+  public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<JSONType> | null = null): JSONType[] {
     return this.resource_storage.get_by_filter(filter_query, filter_fn)
   }
 
   // ============================= Data manipulating =============================
 
-  public async create(create_schema: CreateElementType, data: FormData | null): Promise<void> {
-    const created_object = await this.resource_element_manipulate.create(create_schema, data)
+  public async create(create_schema: CreateJSONType, data: FormData | null): Promise<void> {
+    const created_object = await this.resource_json_manipulate.create(create_schema, data)
     const created_object_id = created_object[this.id_field_name]
     this.resource_storage.load_object_to_storage(created_object_id, created_object)
   }
 
-  public async patch(id: string, update_schema: UpdateElementType): Promise<void> {
-    const updated_object = await this.resource_element_manipulate.patch(id, update_schema)
+  public async patch(id: string, update_schema: UpdateJSONType): Promise<void> {
+    const updated_object = await this.resource_json_manipulate.patch(id, update_schema)
     this.resource_storage.load_object_to_storage(id, updated_object)
   }
 
-  public async put(id: string, update_schema: UpdateElementType): Promise<void> {
-    const updated_object = await this.resource_element_manipulate.put(id, update_schema)
+  public async put(id: string, update_schema: UpdateJSONType): Promise<void> {
+    const updated_object = await this.resource_json_manipulate.put(id, update_schema)
     this.resource_storage.load_object_to_storage(id, updated_object)
   }
 
   public async delete(id: string): Promise<void> {
-    await this.resource_element_manipulate.delete(id)
+    await this.resource_json_manipulate.delete(id)
     this.resource_storage.delete_object_from_storage(id)
   }
 }
