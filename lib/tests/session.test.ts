@@ -58,18 +58,20 @@ class SessionTest extends ResourceSession {
 }
 const sessionTest = new SessionTest()
 
-test('test successed promise', async () => {
-  await expect(sessionTest.test_successed_promise()).resolves.toBeTruthy()
-})
+describe('test resource session', () => {
+  test('test successed promise', async () => {
+    await expect(sessionTest.test_successed_promise()).resolves.toBeTruthy()
+  })
 
-test('test axios error', async () => {
-  await expect(sessionTest.test_error_response_session()).resolves.toBeTruthy()
-})
+  test('test axios error', async () => {
+    await expect(sessionTest.test_error_response_session()).resolves.toBeTruthy()
+  })
 
-test('test session is not alive after error', () => {
-  expect(sessionTest.test_alive_dead()).toBeTruthy()
-})
+  test('test session is not alive after error', () => {
+    expect(sessionTest.test_alive_dead()).toBeTruthy()
+  })
 
-test('test died session throws error', async () => {
-  await expect(sessionTest.test_die_session()).resolves.toBeTruthy()
+  test('test died session throws error', async () => {
+    await expect(sessionTest.test_die_session()).resolves.toBeTruthy()
+  })
 })

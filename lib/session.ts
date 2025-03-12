@@ -76,13 +76,13 @@ export class ResourceSession {
 
     try {
       return await method
-    } catch (payload: unknown) {
-      if (isAxiosError(payload) && payload.status === 401) {
+    } catch (e: unknown) {
+      if (isAxiosError(e) && e.status === 401) {
         this.is_alive = false
         throw new NeedReAuth()
       }
 
-      throw payload
+      throw e
     }
   }
 }

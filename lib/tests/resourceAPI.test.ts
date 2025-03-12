@@ -3,7 +3,7 @@ import { RequestBuilder } from '../requestBuilder';
 import { ResourceSession } from '../session';
 import { ResourceAPI } from '../resourceAPI';
 import { vi, describe, test, expect } from 'vitest'
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 class APITest extends ResourceAPI {
   public async test_try_load_data() {
@@ -24,6 +24,8 @@ vi.mock('axios', async(importActual) => {
   const actual = await importActual<typeof import ('axios')>();
 
   const mockAxios = {
+    AxiosError: actual.AxiosError,
+    isAxiosError: actual.isAxiosError,
     default: {
       ...actual.default,
       create: vi.fn(() => ({
@@ -45,9 +47,29 @@ describe('test resource api', () => {
     mocks.get.mockResolvedValue({
       status: 201,
       data: {
-        name: "string"
+        name: "strings"
       }
     })
-    await expect(api_test.test_try_load_data()).resolves.toStrictEqual({ name: "string" })
+    await expect(api_test.test_try_load_data()).resolves.toStrictEqual({ name: "strings" })
+  })
+
+  test('test try load data two calls then first call unsuccessed', async () => {
+    mocks.get.mockRejectedValueOnce(function() {
+      const error = new AxiosError()
+      error.status = 401
+      return error
+    }())
+
+    await expect(api_test.test_try_load_data()).resolves.toStrictEqual({ name: 'strings' })
+  })
+
+  test('test try load data two calls then all calls unsuccessed', async () => {
+    mocks.get.mockRejectedValue(function() {
+      const error = new AxiosError()
+      error.status = 401
+      return error
+    }())
+
+    await expect(api_test.test_try_load_data()).rejects.toThrowError(AxiosError)
   })
 })
