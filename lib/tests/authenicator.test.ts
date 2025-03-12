@@ -10,7 +10,8 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }));
 
-let counter = 0
+let counter_logins = 0
+let counter_relogins = 0
 
 vi.mock('axios', async(importActual) => {
   const actual = await importActual<typeof import ('axios')>();
@@ -61,6 +62,14 @@ class AuthTest extends OAuth2 {
 
     return have_session && is_alive_session
   }
+
+  public async test_relogin_parallel(): Promise<void> {
+    return this.relogin()
+  }
+
+  public async test_relogin_unsuccessed(): Promise<void> {
+    await this.relogin()
+  }
 }
 
 const authTest = new AuthTest('/', 'https://')
@@ -78,24 +87,24 @@ describe('Authenticator tests', () => {
 
   test('test login unsuccessed', async () => {
     mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
-    await expect(authTest.test_login_incorrectable_data()).rejects.toThrowError(IncorrectDataForAuth.message)
+    await expect(authTest.test_login_incorrectable_data()).rejects.toThrowError(IncorrectDataForAuth)
   })
 
   test('test parallel login', async () => {
     mocks.post.mockImplementation(() => {
-      counter++
+      counter_logins++
       return { status: 201, data: { access_token: 'a', refresh_token: 'b', type_token: 'c' } }
     })
-    await Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])
-    expect(counter).toBe(1)
+    Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])
+    expect(counter_logins).toBe(1)
   })
 
   test('test one of parallels login is incorrect', async () => {
     mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
-    await expect(Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])).rejects.toThrowError(IncorrectDataForAuth.message)
+    await expect(Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])).rejects.toThrowError(IncorrectDataForAuth)
   })
 
-  test('relogin successed', async () => {
+  test('test relogin successed', async () => {
     const current_refresh_token = authTest.get_refresh_token()
     const current_authoriztion_header = authTest.get_authorization_header()
     const SOME_ACCESS_TOKEN = 'some_access_token'
@@ -118,7 +127,30 @@ describe('Authenticator tests', () => {
     expect(authTest.get_refresh_token()).toBe(OTHER_REFRESH_TOKEN)
   })
   
-  test('relogin unsuccessed', async () => {
+  test('test relogin unsuccessed', async () => {
+    mocks.post.mockResolvedValue({
+      status: 401,
+      detail: IncorrectDataForAuth.message
+    })
+    await expect(authTest.test_relogin_unsuccessed()).rejects.toThrowError(IncorrectDataForAuth)
+  })
 
+  test('test parallel relogin', async () => {
+    mocks.post.mockImplementation(() => {
+      counter_relogins++
+      return { status: 201, data: { access_token: 'a', refresh_token: 'b', type_token: 'c' } }
+    })
+    Promise.all([authTest.test_relogin_parallel(), authTest.test_relogin_parallel()])
+    expect(counter_relogins).toBe(1)
+  })
+
+  test('test one of parallel relogin is incorrect', async () => {
+    mocks.post.mockResolvedValue({
+      status: 401,
+      detail: IncorrectDataForAuth.message
+    })
+    await expect(Promise.all([authTest.test_relogin_parallel(), authTest.test_relogin_parallel()]))
+    .rejects
+    .toThrowError(IncorrectDataForAuth)
   })
 })
