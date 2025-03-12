@@ -6,7 +6,8 @@
   "description": "Resource API Library - Work with restfull APIs",
   "main": "index.ts",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest watch --reporter=html",
+    "test:preview": "vite preview --outDir html"
   },
   "dependencies": {
     "@types/node": "^22.0.0",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@vitejs/plugin-vue": "^5.0.5",
+    "@vitest/ui": "^3.0.7",
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
