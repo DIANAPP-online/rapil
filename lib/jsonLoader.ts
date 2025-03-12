@@ -15,7 +15,7 @@ export class ResourceJSONLoader<JSONType> extends ResourceAPI {
   }
 
   public async load_json(id: string, _reload_on_error: boolean = true): Promise<JSONType> {
-    const loaded_json = await this.try_load_data<JSONType>('load', id, _reload_on_error)
+    const loaded_json = await this.try_load_data<JSONType>('load_json', id, _reload_on_error)
 
     if (loaded_json === undefined) {
       throw new Error('Loaded object is undefined')

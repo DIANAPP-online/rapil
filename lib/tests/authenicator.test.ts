@@ -72,7 +72,7 @@ class AuthTest extends OAuth2 {
   }
 }
 
-const authTest = new AuthTest('/', 'https://')
+const authTest = new AuthTest('/e', 'https://')
 
 describe('Authenticator tests', () => {
   afterEach(() => {

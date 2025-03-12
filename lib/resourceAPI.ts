@@ -8,11 +8,15 @@ const GET_REQUEST_BUILDER_METHOD = {
   put: 'get_put_request',
   patch: 'get_patch_request',
   delete: 'get_delete_request',
-  load: 'get_load_one_request',
+  load_json: 'get_load_one_request',
   load_photo: 'get_load_one_request',
   load_next_page: 'get_load_next_page_request',
   load_by_filter: 'get_load_py_filter_request',
 } as const
+
+export type RequestBuilderMethodsType = typeof GET_REQUEST_BUILDER_METHOD[keyof typeof GET_REQUEST_BUILDER_METHOD]
+
+// TODO: type this constant
 
 export class ResourceAPI {
   protected readonly authenticator: Authenticator
@@ -27,12 +31,13 @@ export class ResourceAPI {
     const POSITION_PARAMETER_FOR_REALOD = args.length - 1
     const _reload_on_error = args[POSITION_PARAMETER_FOR_REALOD]
 
-    const request_builder: any = await this.create_request_builder()
-    const name_method_of_request_builder = GET_REQUEST_BUILDER_METHOD[loader_method]
+    const request_builder = await this.create_request_builder()
+    const name_method_of_request_builder: RequestBuilderMethodsType = GET_REQUEST_BUILDER_METHOD[loader_method]
 
     try {
       const response = await request_builder[name_method_of_request_builder](...args)
-      return this.response_check<ReturnType>(response, loader_method) as ReturnType
+      const result_response_check = this.response_check<ReturnType>(response, loader_method) as ReturnType
+      return result_response_check
     } catch (e: unknown) {
       if (e instanceof NeedReAuth && _reload_on_error) {
         args[POSITION_PARAMETER_FOR_REALOD] = false

@@ -20,7 +20,7 @@ export type FilterType = {
     [field: string]: string | number | boolean | string[] | number[] | boolean[]
 }
 
-export type LoaderMethods = "create" | "patch" | "put" | "delete" | "load" | "load_next_page" | "load_by_filter" | "load_photo"
+export type LoaderMethods = "create" | "patch" | "put" | "delete" | "load_json" | "load_next_page" | "load_by_filter" | "load_photo"
 
 export type BaseURL = `https://${string}` | `http://${string}`
 
@@ -39,7 +39,7 @@ export class IncorrectDataForAuth extends Error {
     }
 }
 
-export type Endpoint = `/${string}`
+export type Endpoint = `/${string}${string}`
 
 export type AuthResponse = {
     refresh_token: string
