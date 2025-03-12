@@ -72,4 +72,9 @@ describe('Authenticator tests', () => {
     await Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])
     expect(counter).toBe(1)
   })
+
+  test('test one of parallels login is incorrect', async () => {
+    mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
+    await expect(Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])).rejects.toThrowError(IncorrectDataForAuth.message)
+  })
 })

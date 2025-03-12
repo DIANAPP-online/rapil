@@ -43,6 +43,12 @@ export class OAuth2 implements Authenticator {
       while (this.is_login_loading) {
         await this.sleep(this.TIME_SLEEP)
       }
+      const have_session = this.session
+      const is_alive_session = this.session?.is_alive
+      
+      if (!have_session || !is_alive_session) {
+
+      }
 
       return
     }
