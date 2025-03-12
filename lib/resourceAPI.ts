@@ -16,8 +16,6 @@ const GET_REQUEST_BUILDER_METHOD = {
 
 export type RequestBuilderMethodsType = typeof GET_REQUEST_BUILDER_METHOD[keyof typeof GET_REQUEST_BUILDER_METHOD]
 
-// TODO: type this constant
-
 export class ResourceAPI {
   protected readonly authenticator: Authenticator
   protected readonly endpoint: Endpoint

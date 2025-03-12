@@ -5,6 +5,13 @@ export default defineConfig({
     target: 'node22',
   },
   test: {
-    environment: 'jsdom'
+    environment: 'jsdom',
+    reporters: ['html'],
+    coverage: {
+      enabled: true,
+      provider: 'v8',
+      extension: ['.ts'],
+      exclude: ['index.ts', 'vite.config.ts']
+    }
   },
 })
