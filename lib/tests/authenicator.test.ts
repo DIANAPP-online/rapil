@@ -86,7 +86,7 @@ describe('Authenticator tests', () => {
   })
 
   test('test login unsuccessed', async () => {
-    mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
+    mocks.post.mockResolvedValue({ status: 401, detail: 'some text' })
     await expect(authTest.test_login_incorrectable_data()).rejects.toThrowError(IncorrectDataForAuth)
   })
 
@@ -130,7 +130,7 @@ describe('Authenticator tests', () => {
   test('test relogin unsuccessed', async () => {
     mocks.post.mockResolvedValue({
       status: 401,
-      detail: IncorrectDataForAuth.message
+      detail: 'some text'
     })
     await expect(authTest.test_relogin_unsuccessed()).rejects.toThrowError(IncorrectDataForAuth)
   })
@@ -147,7 +147,7 @@ describe('Authenticator tests', () => {
   test('test one of parallel relogin is incorrect', async () => {
     mocks.post.mockResolvedValue({
       status: 401,
-      detail: IncorrectDataForAuth.message
+      detail: 'some text'
     })
     await expect(Promise.all([authTest.test_relogin_parallel(), authTest.test_relogin_parallel()]))
     .rejects

@@ -40,17 +40,8 @@ export class OAuth2 implements Authenticator {
     password: string,
     scopes?: string
   ): Promise<void> {
-    if (this.is_login_loading) {
-      while (this.is_login_loading) {
-        await this.sleep(this.TIME_SLEEP)
-      }
-      const have_session = this.session
-      const is_alive_session = this.session?.is_alive
-      
-      if (!have_session || !is_alive_session) {
-
-      }
-
+    if (this.is_relogin_loading || this.is_login_loading) {
+      await this.awaiting_authorization()
       return
     }
 
@@ -94,10 +85,7 @@ export class OAuth2 implements Authenticator {
 
   protected async relogin(): Promise<void> {
     if (this.is_relogin_loading || this.is_login_loading) {
-      while (this.is_relogin_loading || this.is_login_loading) {
-        await this.sleep(this.TIME_SLEEP)
-      }
-
+      await this.awaiting_authorization()
       return
     }
 
@@ -115,6 +103,7 @@ export class OAuth2 implements Authenticator {
 
     if (this.is_login_loading) {
       this.is_relogin_loading = false
+      await this.awaiting_authorization()
       return
     }
 
@@ -146,6 +135,18 @@ export class OAuth2 implements Authenticator {
 
     this.api = this.initialize_api(access_token, token_type)
     this.session = new ResourceSession(this.api)
+  }
+
+  protected async awaiting_authorization(): Promise<void> {
+    while (this.is_login_loading || this.is_relogin_loading) {
+      await this.sleep(this.TIME_SLEEP)
+    }
+    const have_session = this.session
+    const is_alive_session = this.session?.is_alive
+
+    if (!have_session || !is_alive_session) {
+      throw new IncorrectDataForAuth()
+    }
   }
 
   protected initialize_api(
