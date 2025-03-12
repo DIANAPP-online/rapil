@@ -1,6 +1,7 @@
 import { OAuth2 } from "../authenticator";
 import { vi, describe, test, expect, afterEach } from 'vitest' 
 import { IncorrectDataForAuth } from "../types";
+import { AxiosHeaderValue } from "axios";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -33,16 +34,32 @@ class AuthTest extends OAuth2 {
 
   public async test_login_successed() {
     await this.login('username', 'password')
-    return this.session.api.defaults.headers["Authorization"] === "b 1"
+    return this.session.api.defaults.headers["Authorization"]
   }
 
   public async test_login_incorrectable_data() {
     await this.login('s', 'p')
   }
 
-  public async test_login_counts(a: string, b: string) {
+  public async test_login_counts(a: string, b: string): Promise<void> {
     await this.login(a, b)
     this.counter++
+  }
+
+  public get_refresh_token(): AxiosHeaderValue {
+    return this.refresh_token
+  }
+
+  public get_authorization_header(): AxiosHeaderValue {
+    return this.api.defaults.headers["Authorization"]
+  }
+
+  public async test_relogin_create_session(): Promise<boolean> {
+    await this.relogin()
+    const have_session = this.session
+    const is_alive_session = this.session?.is_alive
+
+    return have_session && is_alive_session
   }
 }
 
@@ -56,7 +73,7 @@ describe('Authenticator tests', () => {
     mocks.post.mockResolvedValue({
       data: { access_token: '1', refresh_token: '2', token_type: 'b' }
     })
-    await expect(authTest.test_login_successed()).resolves.toBeTruthy()
+    await expect(authTest.test_login_successed()).resolves.toBe('b 1')
   })
 
   test('test login unsuccessed', async () => {
@@ -76,5 +93,32 @@ describe('Authenticator tests', () => {
   test('test one of parallels login is incorrect', async () => {
     mocks.post.mockResolvedValue({ status: 401, detail: IncorrectDataForAuth.message })
     await expect(Promise.all([authTest.login('a', 'a'), authTest.login('b', 'b')])).rejects.toThrowError(IncorrectDataForAuth.message)
+  })
+
+  test('relogin successed', async () => {
+    const current_refresh_token = authTest.get_refresh_token()
+    const current_authoriztion_header = authTest.get_authorization_header()
+    const SOME_ACCESS_TOKEN = 'some_access_token'
+    const OTHER_REFRESH_TOKEN = 'other_refresh_token'
+    const TOKEN_TYPE = 'token_type'
+
+    mocks.post.mockResolvedValue({ 
+        status: 201, 
+        data: { 
+          access_token: SOME_ACCESS_TOKEN, 
+          refresh_token: OTHER_REFRESH_TOKEN, 
+          token_type: TOKEN_TYPE 
+        } 
+    })
+    
+    await expect(authTest.test_relogin_create_session()).resolves.toBeTruthy()
+    expect(current_authoriztion_header).not.toBe(authTest.get_authorization_header())
+    expect(current_refresh_token).not.toBe(authTest.get_refresh_token())
+    expect(authTest.get_authorization_header()).toBe(`${TOKEN_TYPE} ${SOME_ACCESS_TOKEN}`)
+    expect(authTest.get_refresh_token()).toBe(OTHER_REFRESH_TOKEN)
+  })
+  
+  test('relogin unsuccessed', async () => {
+
   })
 })

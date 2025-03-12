@@ -25,7 +25,7 @@ export type LoaderMethods = "create" | "patch" | "put" | "delete" | "load" | "lo
 export type BaseURL = `https://${string}` | `http://${string}`
 
 export class NeedReAuth extends Error {
-    constructor () {
+    constructor() {
         super("Need reauth")
     }
 }
@@ -40,6 +40,12 @@ export class IncorrectDataForAuth extends Error {
 }
 
 export type Endpoint = `/${string}`
+
+export type AuthResponse = {
+    refresh_token: string
+    access_token: string
+    token_type: string
+}
 
 export type GetConfigType = {
   id?: string
