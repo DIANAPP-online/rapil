@@ -1,15 +1,14 @@
-import { ResourceJSONLoader } from './jsonLoader'
-import { ResourceJSONManipulate } from './jsonManipulate'
-import { ResourcePhotoLoader } from './photoLoader'
-import { ResourceStorage } from './storage'
-import { FilledObject, FilterFnType, FilterType } from './types'
+import type { ResourceJSONLoader } from './jsonLoader'
+import type { ResourceJSONManipulate } from './jsonManipulate'
+import type { ResourcePhotoLoader } from './photoLoader'
+import type { ResourceStorage } from './storage'
+import type { FilledObject, FilterFnType, FilterType } from './types'
 
 export class Resource<
   JSONType extends FilledObject,
   CreateJSONType extends FilledObject,
   UpdateJSONType extends FilledObject,
->
- {
+> {
   public always_load: boolean
   protected readonly resource_storage: ResourceStorage<JSONType>
   protected readonly resource_json_loader: ResourceJSONLoader<JSONType>
@@ -18,10 +17,10 @@ export class Resource<
   protected readonly id_field_name: string
 
   constructor(
-    resource_storage: ResourceStorage<JSONType>, 
+    resource_storage: ResourceStorage<JSONType>,
     resource_json_loader: ResourceJSONLoader<JSONType>,
     resource_photo_loader: ResourcePhotoLoader,
-    resource_json_manipulate: ResourceJSONManipulate<JSONType, CreateJSONType, UpdateJSONType>
+    resource_json_manipulate: ResourceJSONManipulate<JSONType, CreateJSONType, UpdateJSONType>,
   ) {
     this.resource_storage = resource_storage
     this.resource_json_loader = resource_json_loader
@@ -69,7 +68,6 @@ export class Resource<
     const loaded_photos = await this.resource_photo_loader.load_photos(ids)
     this.resource_storage.load_photos_to_storage(this.id_field_name, loaded_photos)
   }
-
 
   // ============================= Getters =============================
 

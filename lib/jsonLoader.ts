@@ -1,6 +1,6 @@
-import { Authenticator } from './authenticator';
+import type { Authenticator } from './authenticator'
+import type { Endpoint, FilterType } from './types'
 import { ResourceAPI } from './resourceAPI'
-import { Endpoint, FilterType } from './types'
 
 export class ResourceJSONLoader<JSONType> extends ResourceAPI {
   public page: number
@@ -44,7 +44,8 @@ export class ResourceJSONLoader<JSONType> extends ResourceAPI {
 
     if (objects.length === this.page_count) {
       this.page += 1
-    } else {
+    }
+    else {
       this.pages_ended = true
     }
 

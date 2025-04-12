@@ -1,9 +1,10 @@
-import { reactive, Reactive } from 'vue'
-import { Field, FilledObject, FilterFnType, FilterType, SorterType } from './types'
+import type { Reactive } from 'vue'
+import type { Field, FilledObject, FilterFnType, FilterType, SorterType } from './types'
+import { reactive } from 'vue'
 
 export class ResourceStorage<
   ContentType extends FilledObject,
-  > {
+> {
   public readonly storage: Reactive<Map<string, ContentType | undefined>>
   public readonly photos_storage: Reactive<Map<string, Base64URLString | undefined>>
   public max_storage_size: number | null
@@ -53,7 +54,7 @@ export class ResourceStorage<
     const getted_photo = this.photos_storage.get(id) as Base64URLString
 
     if (getted_photo === undefined) {
-      throw new Error("Photo is undefined")
+      throw new Error('Photo is undefined')
     }
 
     return getted_photo
@@ -77,7 +78,11 @@ export class ResourceStorage<
     return objects
   }
 
-  public load_object_to_storage(id: string, updated_object: ContentType, exists_value_priority: boolean = false): ContentType {
+  public load_object_to_storage(
+    id: string,
+    updated_object: ContentType,
+    exists_value_priority: boolean = false,
+  ): ContentType {
     let new_object: any
     const object_from_storage = this.storage.get(id) as ContentType
     if (exists_value_priority) {
@@ -85,7 +90,8 @@ export class ResourceStorage<
         ...updated_object,
         ...object_from_storage,
       }
-    } else {
+    }
+    else {
       new_object = {
         ...object_from_storage,
         ...updated_object,
@@ -112,10 +118,15 @@ export class ResourceStorage<
     }
   }
 
-  public get_compare_objects_function(enable_reverse_sort: boolean): SorterType<ContentType> {
+  public get_compare_objects_function(
+    enable_reverse_sort: boolean,
+  ): SorterType<ContentType> {
     const compare_objects = (a: ContentType, b: ContentType) => {
       for (const compare_field of this.sort_fields) {
-        const value_of_type_sort = this.global_enable_reverse_sort ? this.global_enable_reverse_sort : enable_reverse_sort
+        const value_of_type_sort
+          = this.global_enable_reverse_sort
+            ? this.global_enable_reverse_sort
+            : enable_reverse_sort
         const sort_number = 2 * Number(!value_of_type_sort) - 1
         if (a[compare_field] > b[compare_field]) {
           return sort_number

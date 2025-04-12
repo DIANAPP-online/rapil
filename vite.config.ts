@@ -11,7 +11,7 @@ export default defineConfig({
       enabled: true,
       provider: 'v8',
       extension: ['.ts'],
-      exclude: ['index.ts', 'vite.config.ts']
-    }
+      exclude: ['index.ts', 'vite.config.ts'],
+    },
   },
 })

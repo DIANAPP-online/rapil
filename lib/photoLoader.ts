@@ -1,6 +1,6 @@
-import { Authenticator } from "./authenticator";
-import { ResourceAPI } from "./resourceAPI";
-import { Endpoint } from "./types";
+import type { Authenticator } from './authenticator'
+import type { Endpoint } from './types'
+import { ResourceAPI } from './resourceAPI'
 
 export class ResourcePhotoLoader extends ResourceAPI {
   constructor(authenticator: Authenticator, endpoint: Endpoint) {
@@ -8,14 +8,14 @@ export class ResourcePhotoLoader extends ResourceAPI {
   }
 
   public async load_photo(id: string, _reload_on_error: boolean = true): Promise<Base64URLString> {
-    const response = await this.try_load_data<Response>("load_photo", id, _reload_on_error)
+    const response = await this.try_load_data<Response>('load_photo', id, _reload_on_error)
 
     if (response === undefined) {
-      throw new Error("Loaded photo is undefined")
+      throw new Error('Loaded photo is undefined')
     }
 
     const arrayBuffer = await response.bytes()
-    const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
 
     return base64String
   }

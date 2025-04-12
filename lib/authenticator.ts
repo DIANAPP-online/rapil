@@ -1,10 +1,12 @@
-import { ParamsStringifier } from './paramsStringifirer';
-import { ResourceSession } from './session';
-import { AuthResponse, BaseURL, Endpoint, IncorrectDataForAuth } from './types';
-import axios, {
+import type {
   AxiosInstance,
   AxiosResponse,
-} from "axios"
+} from 'axios'
+import type { AuthResponse, BaseURL, Endpoint } from './types'
+import axios from 'axios'
+import { ParamsStringifier } from './paramsStringifirer'
+import { ResourceSession } from './session'
+import { IncorrectDataForAuth } from './types'
 
 export interface Authenticator {
   get_session: () => Promise<ResourceSession>
@@ -38,7 +40,7 @@ export class OAuth2 implements Authenticator {
   public async login(
     username: string,
     password: string,
-    scopes?: string
+    scopes?: string,
   ): Promise<void> {
     if (this.is_relogin_loading || this.is_login_loading) {
       await this.awaiting_authorization()
@@ -47,17 +49,17 @@ export class OAuth2 implements Authenticator {
 
     this.is_login_loading = true
     const form_data = new FormData()
-    form_data.append("username", username)
-    form_data.append("password", password)
-    form_data.append("grant_type", "password")
+    form_data.append('username', username)
+    form_data.append('password', password)
+    form_data.append('grant_type', 'password')
 
     if (scopes) {
-      form_data.append("scopes", scopes)
+      form_data.append('scopes', scopes)
     }
 
     this.api = axios.create({
       baseURL: this.base_url,
-      validateStatus: () => true
+      validateStatus: () => true,
     })
 
     const response = await this.api.post(this.login_endpoint, form_data)
@@ -90,14 +92,14 @@ export class OAuth2 implements Authenticator {
     }
 
     if (!this.refresh_token) {
-      throw new Error("Refresh token does not exist")
+      throw new Error('Refresh token does not exist')
     }
 
     this.is_relogin_loading = true
     const form_data = new FormData()
 
-    form_data.append("refresh_token", this.refresh_token)
-    form_data.append("grant_type", "refresh_token")
+    form_data.append('refresh_token', this.refresh_token)
+    form_data.append('grant_type', 'refresh_token')
 
     const response = await this.api.post(this.login_endpoint, form_data)
 
@@ -118,7 +120,7 @@ export class OAuth2 implements Authenticator {
   }
 
   protected get_refresh_token() {
-    this.refresh_token = localStorage.getItem("refresh_token")
+    this.refresh_token = localStorage.getItem('refresh_token')
   }
 
   protected sleep(ms: number) {
@@ -151,14 +153,14 @@ export class OAuth2 implements Authenticator {
 
   protected initialize_api(
     access_token: string,
-    token_type: string
+    token_type: string,
   ): AxiosInstance {
     const api = axios.create({
       baseURL: this.base_url,
-      paramsSerializer: params => ParamsStringifier.stringify_parameters(params),
+      paramsSerializer: (params) => ParamsStringifier.stringify_parameters(params),
       validateStatus: () => true,
     })
-    api.defaults.headers["Authorization"] = token_type + " " + access_token
+    api.defaults.headers.Authorization = `${token_type} ${access_token}`
 
     return api
   }

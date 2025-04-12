@@ -1,9 +1,9 @@
+import { isNativeError } from 'node:util/types'
 import axios, { AxiosError } from 'axios'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { isNativeError } from 'util/types'
+import { describe, expect } from 'vitest'
 import { ResourceSession } from '../session'
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 async function send_hello() {
   await sleep(100)
@@ -29,10 +29,12 @@ class SessionTest extends ResourceSession {
     try {
       await this.run_with_alive_session_check(promise)
       return false
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (!isNativeError(e) || (e as Error).message !== 'Need reauth') {
         return false
-      } else {
+      }
+      else {
         return true
       }
     }
@@ -45,10 +47,12 @@ class SessionTest extends ResourceSession {
   public async test_die_session(): Promise<boolean> {
     try {
       await this.run_with_alive_session_check(send_hello())
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (!isNativeError(e) || e.message !== 'Need reauth') {
         return false
-      } else {
+      }
+      else {
         return true
       }
     }
@@ -59,19 +63,19 @@ class SessionTest extends ResourceSession {
 const sessionTest = new SessionTest()
 
 describe('test resource session', () => {
-  test('test successed promise', async () => {
+  it('test successed promise', async () => {
     await expect(sessionTest.test_successed_promise()).resolves.toBeTruthy()
   })
 
-  test('test axios error', async () => {
+  it('test axios error', async () => {
     await expect(sessionTest.test_error_response_session()).resolves.toBeTruthy()
   })
 
-  test('test session is not alive after error', () => {
+  it('test session is not alive after error', () => {
     expect(sessionTest.test_alive_dead()).toBeTruthy()
   })
 
-  test('test died session throws error', async () => {
+  it('test died session throws error', async () => {
     await expect(sessionTest.test_die_session()).resolves.toBeTruthy()
   })
 })
