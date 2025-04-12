@@ -1,5 +1,5 @@
 import type { Reactive } from 'vue'
-import type { Field, FilledObject, FilterFnType, FilterType, SorterType } from './types'
+import type { Field, FilledObject, FilterFnType, FilterType, PhotoObject, SorterType } from './types'
 import { reactive } from 'vue'
 
 export class ResourceStorage<
@@ -13,6 +13,7 @@ export class ResourceStorage<
 
   constructor() {
     this.storage = reactive(new Map())
+    this.photos_storage = reactive(new Map())
     this.max_storage_size = null
     this.sort_fields = []
     this.global_enable_reverse_sort = false
@@ -112,9 +113,9 @@ export class ResourceStorage<
     this.photos_storage.set(id, photo as any)
   }
 
-  public load_photos_to_storage(id_field_name: string, photos: Base64URLString[]) {
+  public load_photos_to_storage(id_field_name: string, photos: PhotoObject[]) {
     for (const photo of photos) {
-      this.load_photo_to_storage(photo[id_field_name], photo)
+      this.load_photo_to_storage(photo[id_field_name], photo.content)
     }
   }
 

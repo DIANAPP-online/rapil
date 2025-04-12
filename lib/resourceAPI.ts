@@ -13,7 +13,7 @@ const GET_REQUEST_BUILDER_METHOD = {
   load_json: 'get_load_one_request',
   load_photo: 'get_load_one_request',
   load_next_page: 'get_load_next_page_request',
-  load_by_filter: 'get_load_py_filter_request',
+  load_by_filter: 'get_load_by_filter_request',
 } as const
 
 export type RequestBuilderMethodsType = typeof GET_REQUEST_BUILDER_METHOD[keyof typeof GET_REQUEST_BUILDER_METHOD]

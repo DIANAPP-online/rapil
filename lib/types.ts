@@ -62,3 +62,8 @@ export interface GetConfigType {
     filters?: FilterType
   }
 }
+
+export interface PhotoObject {
+  [key: string]: string
+  content: Base64URLString
+}
