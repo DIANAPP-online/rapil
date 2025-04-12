@@ -70,9 +70,9 @@ export class ResourceStorage<
     return getted_photos
   }
 
-  public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<ContentType> | null = null): ContentType[] {
+  public get_by_filter(filter_query: FilterType, filter_fn?: FilterFnType<ContentType>): ContentType[] {
     let objects = this.get_objects_by_filter(filter_query, this.get_objects())
-    if (filter_fn !== null) {
+    if (filter_fn) {
       objects = this.get_objects_by_filter_fn(filter_fn, objects)
     }
     return objects

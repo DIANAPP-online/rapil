@@ -71,7 +71,7 @@ export class Resource<
 
   // ============================= Getters =============================
 
-  public get(id: string | undefined, default_value: JSONType): JSONType {
+  public get(id: string | undefined, default_value?: JSONType): JSONType {
     return this.resource_storage.get(id, default_value)
   }
 
@@ -79,13 +79,13 @@ export class Resource<
     return this.resource_storage.get_objects(enable_revers_sort)
   }
 
-  public get_by_filter(filter_query: FilterType, filter_fn: FilterFnType<JSONType> | null = null): JSONType[] {
+  public get_by_filter(filter_query: FilterType, filter_fn?: FilterFnType<JSONType>): JSONType[] {
     return this.resource_storage.get_by_filter(filter_query, filter_fn)
   }
 
   // ============================= Data manipulating =============================
 
-  public async create(create_schema: CreateJSONType, data: FormData | null): Promise<void> {
+  public async create(create_schema: CreateJSONType, data?: FormData): Promise<void> {
     const created_object = await this.resource_json_manipulate.create(create_schema, data)
     const created_object_id = created_object[this.id_field_name]
     this.resource_storage.load_object_to_storage(created_object_id, created_object)
