@@ -1,5 +1,5 @@
 import type { ResourceSession } from './session'
-import type { BaseSchemaType, Endpoint, FilterType } from './types'
+import type { BaseSchemaType, Endpoint, FilterType, GetConfigType } from './types'
 
 export class RequestBuilder {
   public endpoint: Endpoint
@@ -10,8 +10,8 @@ export class RequestBuilder {
     this.session = session
   }
 
-  public get_load_next_page_request(page: number, count: number, filters: FilterType | null = null) {
-    const config = {
+  public get_load_next_page_request(page: number, count: number, filters?: FilterType) {
+    const config: GetConfigType = {
       params: {
         page,
         count,
