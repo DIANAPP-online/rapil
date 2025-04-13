@@ -2,7 +2,7 @@ import type { ResourceJSONLoader } from './jsonLoader'
 import type { ResourceJSONManipulate } from './jsonManipulate'
 import type { ResourcePhotoLoader } from './photoLoader'
 import type { ResourceStorage } from './storage'
-import type { FilledObject, FilterFnType, FilterType, PhotoObject } from './types'
+import type { FilledObject, FilterFnType, FilterType } from './types'
 
 export class Resource<
   JSONType extends FilledObject,

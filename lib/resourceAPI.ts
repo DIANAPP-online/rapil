@@ -35,6 +35,7 @@ export class ResourceAPI {
     const name_method_of_request_builder: RequestBuilderMethodsType = GET_REQUEST_BUILDER_METHOD[loader_method]
 
     try {
+      // @ts-expect-error : ...args -- type of parameters of all methods of request builder
       const response = await request_builder[name_method_of_request_builder](...args)
       const result_response_check = this.response_check<ReturnType>(response, loader_method) as ReturnType
       return result_response_check
@@ -50,7 +51,7 @@ export class ResourceAPI {
     }
   }
 
-  protected response_check<ReturnType>(response: AxiosResponse, method: string): ReturnType | void {
+  protected response_check<ReturnType>(response: AxiosResponse<ReturnType, any>, method: string): ReturnType | void {
     if (response && [200, 201, 202].includes(response.status) && response.data) {
       return response.data
     }

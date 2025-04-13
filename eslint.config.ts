@@ -8,12 +8,6 @@ export default antfu({
 }, {
   rules: {
     'style/max-len': ['error', { code: 120 }],
-    'style/lines-around-comment': ['error', {
-      afterBlockComment: true,
-      beforeBlockComment: true,
-      afterLineComment: true,
-      beforeLineComment: true,
-    }],
     'style/max-statements-per-line': ['error', { max: 2 }],
     'style/arrow-parens': ['error', 'always'],
     'style/function-call-argument-newline': ['error', 'consistent'],

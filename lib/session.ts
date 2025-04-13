@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { Endpoint, GetConfigType } from './types'
 import { isAxiosError } from 'axios'
 import { NeedReAuth } from './types'
@@ -15,7 +15,7 @@ export class ResourceSession {
   public async get<ContentType>(
     endpoint: Endpoint,
     config: GetConfigType,
-  ): Promise<ContentType> {
+  ): Promise<AxiosResponse<ContentType>> {
     if (config.id) {
       const id = config.id
       delete config.id
@@ -29,7 +29,7 @@ export class ResourceSession {
     endpoint: Endpoint,
     data: CreateContentType,
     config?: AxiosRequestConfig,
-  ): Promise<ContentType> {
+  ): Promise<AxiosResponse<ContentType>> {
     return await this.run_with_alive_session_check(
       this.api.post(endpoint, data, config),
     )
@@ -43,7 +43,7 @@ export class ResourceSession {
     id: string,
     data: UpdateContentType,
     config?: AxiosRequestConfig,
-  ): Promise<ContentType> {
+  ): Promise<AxiosResponse<ContentType>> {
     return await this.run_with_alive_session_check(
       this.api.patch(`${endpoint}/${id}`, data, config),
     )
@@ -54,7 +54,7 @@ export class ResourceSession {
     id: string,
     data: UpdateContentType,
     config?: AxiosRequestConfig,
-  ): Promise<ContentType> {
+  ): Promise<AxiosResponse<ContentType>> {
     return await this.run_with_alive_session_check(
       this.api.put(`${endpoint}/${id}`, data, config),
     )
@@ -64,8 +64,8 @@ export class ResourceSession {
     endpoint: Endpoint,
     id: string,
     config?: AxiosRequestConfig,
-  ): Promise<void> {
-    await this.run_with_alive_session_check(
+  ): Promise<AxiosResponse> {
+    return await this.run_with_alive_session_check(
       this.api.delete(`${endpoint}/${id}`, config),
     )
   }
