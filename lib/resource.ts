@@ -2,7 +2,7 @@ import type { ResourceJSONLoader } from './jsonLoader'
 import type { ResourceJSONManipulate } from './jsonManipulate'
 import type { ResourcePhotoLoader } from './photoLoader'
 import type { ResourceStorage } from './storage'
-import type { FilledObject, FilterFnType, FilterType } from './types'
+import type { FilledObject, FilterFnType, FilterType, PhotoObject } from './types'
 
 export class Resource<
   JSONType extends FilledObject,
@@ -61,7 +61,7 @@ export class Resource<
 
   public async load_photo(id: string): Promise<void> {
     const loaded_photo = await this.resource_photo_loader.load_photo(id)
-    this.resource_storage.load_photo_to_storage(this.id_field_name, loaded_photo)
+    this.resource_storage.load_photo_to_storage(this.id_field_name, loaded_photo.content)
   }
 
   public async load_photos(ids: string[]): Promise<void> {
