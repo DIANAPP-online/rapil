@@ -13,7 +13,7 @@ export interface Authenticator {
 }
 
 export class OAuth2 implements Authenticator {
-  protected session: ResourceSession
+  protected session: ResourceSession | null
   protected is_login_loading: boolean
   protected is_relogin_loading: boolean
   protected readonly login_endpoint: Endpoint
@@ -31,7 +31,7 @@ export class OAuth2 implements Authenticator {
     this.refresh_token = null
     this.access_token = null
     this.api = axios.create()
-    this.session = new ResourceSession(this.api)
+    this.session = null
     this.is_relogin_loading = false
     this.is_login_loading = false
     this.get_refresh_token()
@@ -76,13 +76,13 @@ export class OAuth2 implements Authenticator {
 
   public async get_session(): Promise<ResourceSession> {
     const have_session = Boolean(this.session)
-    const is_alive_session = this.session.is_alive
+    const is_alive_session = this.session?.is_alive
 
     if (!have_session || !is_alive_session) {
       await this.relogin()
     }
 
-    return this.session
+    return this.session!
   }
 
   protected async relogin(): Promise<void> {
