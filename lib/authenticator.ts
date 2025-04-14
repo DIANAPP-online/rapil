@@ -30,7 +30,10 @@ export class OAuth2 implements Authenticator {
     this.base_url = base_url
     this.refresh_token = null
     this.access_token = null
-    this.api = axios.create()
+    this.api = axios.create({
+      baseURL: this.base_url,
+      validateStatus: () => true,
+    })
     this.session = null
     this.is_relogin_loading = false
     this.is_login_loading = false
@@ -56,11 +59,6 @@ export class OAuth2 implements Authenticator {
     if (scopes) {
       form_data.append('scopes', scopes)
     }
-
-    this.api = axios.create({
-      baseURL: this.base_url,
-      validateStatus: () => true,
-    })
 
     const response = await this.api.post(this.login_endpoint, form_data)
 
