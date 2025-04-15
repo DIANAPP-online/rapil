@@ -38,8 +38,7 @@ export class Resource<
     }
 
     const loaded_object = await this.resource_json_loader.load_json(id)
-    const id_loaded_object = loaded_object[this.id_field_name]
-    this.resource_storage.load_object_to_storage(id_loaded_object, loaded_object)
+    this.resource_storage.load_object_to_storage(id, loaded_object)
   }
 
   public async load_list(ids: string[]): Promise<void> {
