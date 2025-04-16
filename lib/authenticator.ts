@@ -109,6 +109,7 @@ export class OAuth2 implements Authenticator {
 
     if (response.status === 401) {
       this.is_relogin_loading = false
+      localStorage.removeItem('refresh_token')
       throw new IncorrectDataForAuth()
     }
 
